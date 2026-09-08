@@ -1,0 +1,4048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryan Ramp Design Calculator — 3D Interactive</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --primary-hover: #004494;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            
+            --bg-color: #f4f7fb;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-bg-secondary: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(0, 86, 179, 0.15);
+            
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            
+            --shadow-soft: 0 4px 6px rgba(0,0,0,0.05);
+            --shadow-hover: 0 10px 25px rgba(0, 86, 179, 0.15);
+            
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .math-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .fraction {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.2;
+        }
+        
+        .fraction .num {
+            border-bottom: 1px solid var(--text-primary);
+            padding: 0 4px;
+        }
+        
+        .fraction .den {
+            padding: 0 4px;
+        }
+
+        .var-list {
+            list-style-type: disc;
+            padding-left: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+
+        .card-divider {
+            border: 0;
+            border-top: 1px solid #e2e8f0;
+            margin: auto 0 16px 0;
+        }
+
+        .input-with-affix {
+            display: flex;
+            align-items: center;
+            border: 1px solid #d1d5db;
+            border-radius: var(--radius-md);
+            background: white;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .input-with-affix:focus-within {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+        }
+
+        .input-with-affix input {
+            border: none !important;
+            box-shadow: none !important;
+            flex: 1;
+            width: 100%;
+        }
+
+        .input-with-affix input:focus {
+            box-shadow: none;
+        }
+
+        .affix-prefix {
+            padding-left: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .affix-suffix {
+            padding-right: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            height: 60px;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        header span {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+        
+        .header-project-indicator {
+            color: var(--accent-yellow);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: 8px;
+            padding-right: 16px;
+            border-right: 1px solid rgba(255,255,255,0.3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+        
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .btn-header {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-header:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        main {
+            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+            .header-project-indicator { display: none; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-header {
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--primary-blue);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: var(--border-color);
+            color: var(--primary-blue);
+            text-transform: uppercase;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .formula-box {
+            background: rgba(0, 86, 179, 0.03);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        input[type="number"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: white;
+            transition: var(--transition-smooth);
+            appearance: none;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+        }
+
+        input[readonly] {
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+
+        .segmented-control {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .segmented-control label {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            margin-bottom: 0;
+        }
+
+        .segmented-control input {
+            display: none;
+        }
+
+        .segmented-control input:checked + label {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .custom-select-wrapper {
+            position: relative;
+        }
+        
+        .custom-select-wrapper::after {
+            content: '▼';
+            font-size: 0.7rem;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text-secondary);
+        }
+
+        .tile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .metric-tile {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .metric-tile:hover {
+            border-color: var(--border-color);
+            transform: scale(1.02);
+        }
+
+        .tile-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .tile-value {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            line-height: 1.2;
+        }
+
+        .tile-unit {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .engineering-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .engineering-table th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 10px 8px;
+            border-bottom: 2px solid var(--border-color);
+            background: rgba(0,0,0,0.02);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .engineering-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-primary);
+        }
+
+        .engineering-table tr {
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .engineering-table tr:hover {
+            background: rgba(0, 86, 179, 0.05);
+        }
+
+        .engineering-table tr.active-row {
+            background-color: var(--primary-hover);
+            color: white;
+            font-weight: 700;
+            border-left: none;
+        }
+
+        .engineering-table tr.active-row td {
+            color: white;
+            border-bottom-color: var(--primary-hover);
+        }
+
+        .criteria-card-container {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            height: 100%;
+        }
+
+        .criteria-card-container.fade-out {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        /* Custom Standard Panel Styles */
+        .custom-standard-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            height: 100%;
+        }
+
+        .design-information-box {
+            background: rgba(0, 86, 179, 0.03);
+            border-left: 3px solid var(--primary-blue);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .design-information-box strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .custom-input-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .custom-input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg-secondary);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .custom-input-row label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .custom-input-row input {
+            width: 90px;
+            padding: 4px 8px;
+            text-align: right;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .live-validation-panel {
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            margin-top: auto;
+        }
+
+        .validation-valid { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--accent-green); }
+        .validation-review { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--accent-yellow); }
+        .validation-warning { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--accent-red); }
+
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-blue);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: auto;
+            text-align: right;
+            display: block;
+            width: 100%;
+            padding-top: 12px;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0,86,179,0.05);
+        }
+        
+        .btn-danger {
+            background: white;
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .svg-container {
+            width: 100%;
+            height: 350px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            margin-top: 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 8px 24px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+        }
+        
+        /* Modals & Overlays */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        
+        .modal-close:hover { opacity: 1; }
+        
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f8fafc;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        /* Project Manager Styles */
+        .pm-layout {
+            display: flex;
+            gap: 24px;
+            height: 60vh;
+        }
+        
+        .pm-sidebar {
+            width: 300px;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            padding-right: 16px;
+        }
+        
+        .pm-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        
+        .project-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .project-item {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .project-item:hover {
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .project-item.active {
+            border-color: var(--primary-blue);
+            background: rgba(0,86,179,0.03);
+            border-left: 4px solid var(--primary-blue);
+        }
+        
+        .project-item-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .project-item-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        details.advanced-details {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+        
+        details.advanced-details summary {
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--primary-blue);
+            outline: none;
+        }
+
+        /* Sidebar Levels Manager */
+        .level-sidebar-overlay {
+            position: fixed;
+            top: 60px; right: -400px; bottom: 0; width: 400px;
+            background: white;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .level-sidebar-overlay.open {
+            right: 0;
+        }
+        
+        .level-sb-header {
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .level-sb-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        
+        .level-sb-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg-color);
+        }
+        
+        .level-sb-footer {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .level-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .level-card:hover {
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+        
+        .level-card.active {
+            border-color: var(--primary-blue);
+            border-left: 4px solid var(--primary-blue);
+            background: rgba(0,86,179,0.02);
+        }
+        
+        .level-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .level-card-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            flex: 1;
+        }
+        
+        .level-card-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .level-card-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .level-card-btn:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--primary-blue);
+        }
+        
+        .level-card-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        /* Fullscreen Viewers */
+        #fs_overlay, #allLevelsOverlay {
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            background: rgba(15, 23, 42, 0.98); 
+            z-index: 9999; 
+            align-items: center; justify-content: center; 
+            cursor: zoom-out; 
+            user-select: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        #fs_content, #allLevelsContent {
+            width: 90%; height: 90%; 
+            display: flex; align-items: center; justify-content: center; 
+            transform-origin: center center; 
+            will-change: transform;
+        }
+        
+        .btn-close-fs {
+            position: absolute; top: 20px; right: 20px; 
+            background: white; color: black; border: none; 
+            padding: 10px 15px; border-radius: 50%; font-weight: 700; 
+            cursor: pointer; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: var(--transition-smooth);
+        }
+        
+        .btn-close-fs:hover { transform: scale(1.1); }
+        
+        .btn-fullscreen {
+            background: var(--primary-blue); color: white; border: none; 
+            padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 700; 
+            cursor: pointer; transition: var(--transition-smooth);
+        }
+        
+        .btn-fullscreen:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        
+        /* Global Loader */
+        #globalLoader {
+            position: fixed; top:0; left:0; width:100vw; height:100vh;
+            background: rgba(255,255,255,0.9); z-index: 99999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(0,86,179,0.2);
+            border-top-color: var(--primary-blue); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+
+        /* ═══════════════════ 3D INTERACTIVE MODEL ═══════════════════ */
+        .card-3d {
+            border-top: 4px solid var(--accent-purple);
+            animation: card3dIn 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) 0.1s both;
+        }
+        @keyframes card3dIn {
+            from { opacity: 0; transform: translateY(26px) scale(0.985); }
+            to   { opacity: 1; transform: none; }
+        }
+        .r3d-toolbar {
+            display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+        }
+        .btn-3d {
+            background: rgba(15, 23, 42, 0.94);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            padding: 7px 13px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+        .btn-3d:hover {
+            border-color: #38bdf8; color: #f0f9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.22);
+        }
+        .btn-3d.active {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: #fff; border-color: transparent;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16), 0 8px 22px rgba(14, 165, 233, 0.38);
+        }
+        .r3d-sep { width: 1px; height: 24px; background: rgba(148, 163, 184, 0.25); margin: 0 3px; }
+        .r3d-stage {
+            position: relative; margin-top: 16px; height: 640px;
+            border-radius: var(--radius-lg); overflow: hidden;
+            background: radial-gradient(120% 130% at 70% 0%, #17253f 0%, #0b1526 55%, #070d1a 100%);
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.14), 0 30px 60px -28px rgba(2, 6, 23, 0.85);
+        }
+        .r3d-canvas-wrap { position: absolute; inset: 0; cursor: grab; }
+        .r3d-canvas-wrap:active { cursor: grabbing; }
+        .r3d-canvas-wrap canvas { display: block; width: 100%; height: 100%; }
+        .r3d-vignette {
+            position: absolute; inset: 0; z-index: 4; pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 52%, rgba(2, 6, 23, 0.52) 100%);
+        }
+        .r3d-hud {
+            position: absolute; top: 14px; left: 14px; z-index: 5;
+            display: flex; gap: 8px; flex-wrap: wrap; max-width: 75%;
+            pointer-events: none;
+        }
+        .r3d-chip {
+            background: rgba(8, 15, 30, 0.74);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(56, 189, 248, 0.24);
+            border-radius: 9px; padding: 6px 12px;
+            display: flex; flex-direction: column; gap: 1px;
+        }
+        .r3d-chip-k { font-size: 0.56rem; letter-spacing: 0.14em; color: #7dd3fc; font-weight: 800; }
+        .r3d-chip-v { font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; font-weight: 700; color: #f0f9ff; }
+        .r3d-chip.warn { border-color: rgba(245, 158, 11, 0.65); }
+        .r3d-chip.warn .r3d-chip-v { color: #fbbf24; }
+        .r3d-legend {
+            position: absolute; bottom: 12px; left: 14px; z-index: 5;
+            display: flex; gap: 14px; flex-wrap: wrap;
+            pointer-events: none; font-size: 0.62rem; font-weight: 600; color: #94a3b8;
+            letter-spacing: 0.03em;
+        }
+        .r3d-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            display: inline-block; margin-right: 5px; vertical-align: middle;
+            box-shadow: 0 0 8px currentColor;
+        }
+        .r3d-hint {
+            position: absolute; bottom: 12px; right: 14px; z-index: 5;
+            font-size: 0.64rem; color: rgba(148, 163, 184, 0.9);
+            background: rgba(8, 15, 30, 0.6);
+            padding: 5px 11px; border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            pointer-events: none;
+        }
+        .r3d-msg {
+            position: absolute; inset: 0; z-index: 6;
+            display: flex; align-items: center; justify-content: center;
+            color: #fbbf24; font-weight: 700; font-size: 0.95rem; text-align: left;
+            padding: 20px; pointer-events: none;
+        }
+        .r3d-loading {
+            position: absolute; inset: 0; z-index: 10;
+            display: flex; flex-direction: column; gap: 16px;
+            align-items: center; justify-content: center;
+            background: radial-gradient(120% 130% at 70% 0%, #17253f 0%, #0b1526 55%, #070d1a 100%);
+            color: #7dd3fc; font-weight: 600; font-size: 0.82rem; letter-spacing: 0.04em;
+            transition: opacity 0.6s ease;
+        }
+        .r3d-spinner {
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 3px solid rgba(56, 189, 248, 0.18); border-top-color: #38bdf8;
+            animation: r3dspin 1s linear infinite;
+        }
+        @keyframes r3dspin { to { transform: rotate(360deg); } }
+        .r3d-close {
+            display: none; position: absolute; top: 14px; right: 14px; z-index: 11;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(8, 15, 30, 0.8); color: #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            font-size: 1rem; cursor: pointer; align-items: center; justify-content: center;
+            transition: all 0.25s;
+        }
+        .r3d-close:hover { border-color: #38bdf8; color: #fff; transform: rotate(90deg); }
+        #card_3d.r3d-fs {
+            position: fixed; inset: 0; z-index: 4000;
+            margin: 0; border-radius: 0; max-width: none; width: auto;
+            background: #0b1526; animation: none; padding: 14px 18px;
+        }
+        #card_3d.r3d-fs .r3d-stage { flex: 1; height: auto; margin-top: 12px; }
+        #card_3d.r3d-fs .r3d-close { display: flex; }
+        @media (max-width: 768px) {
+            .r3d-stage { height: 480px; }
+            .r3d-hud { max-width: 100%; }
+            .r3d-legend { display: none; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>RAMP DESIGN</h1>
+        <div class="header-actions">
+            <div class="header-project-indicator" id="project_indicator" title="Current Project">Current Project: None</div>
+            <button class="btn-header" onclick="pm.openManager()">📁 Projects</button>
+            <button class="btn-header" onclick="pm.toggleLevelSidebar()">🏢 Manage Levels</button>
+            <button class="btn-header" onclick="pdf.openExportModal()">📄 Export PDF</button>
+            <button class="btn-header" onclick="document.getElementById('card_3d').scrollIntoView({behavior:'smooth', block:'start'})">🧊 3D Model</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="grid-4" id="section_conversions">
+            
+            <!-- Card 1: Gradient -->
+            <div class="card">
+                <div class="card-header" style="margin-bottom: 16px;">
+                    <h2 class="card-title" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">RAMP SLOPE (GRADIENT)</h2>
+                </div>
+                <div class="formula-box" style="padding: 16px 12px; margin-bottom: 16px; background: #f8fafc; border: 1px dashed #cbd5e1;">
+                    <div class="math-block">
+                        <span>G = </span>
+                        <div class="fraction"><span class="num">Rise</span><span class="den">Run</span></div>
+                        <span> = 1 : X</span>
+                    </div>
+                </div>
+                <ul class="var-list">
+                    <li>Rise = Vertical Rise</li>
+                    <li>Run = Horizontal Projection</li>
+                    <li>X = Gradient Factor</li>
+                </ul>
+                <hr class="card-divider">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 8px;">Quick Conversion</label>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px;">Gradient (1:X)</div>
+                    <div class="input-with-affix">
+                        <span class="affix-prefix">1 : </span>
+                        <input type="number" id="conv_grad" placeholder="8" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Percentage -->
+            <div class="card">
+                <div class="card-header" style="margin-bottom: 16px;">
+                    <h2 class="card-title" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">RAMP SLOPE (PERCENTAGE)</h2>
+                </div>
+                <div class="formula-box" style="padding: 16px 12px; margin-bottom: 16px; background: #f8fafc; border: 1px dashed #cbd5e1;">
+                    <div class="math-block">
+                        <span>S = </span>
+                        <div class="fraction"><span class="num">Rise</span><span class="den">Run</span></div>
+                        <span> × 100 = </span>
+                        <div class="fraction"><span class="num">100</span><span class="den">X</span></div>
+                    </div>
+                </div>
+                <ul class="var-list">
+                    <li>Rise = Vertical Rise</li>
+                    <li>Run = Horizontal Projection</li>
+                    <li>S = Ramp Grade (%)</li>
+                </ul>
+                <hr class="card-divider">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 8px;">Quick Conversion</label>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px;">Slope %</div>
+                    <div class="input-with-affix">
+                        <input type="number" id="conv_pct" placeholder="12.50" step="0.1">
+                        <span class="affix-suffix">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Degrees -->
+            <div class="card">
+                <div class="card-header" style="margin-bottom: 16px;">
+                    <h2 class="card-title" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">RAMP SLOPE (DEGREES)</h2>
+                </div>
+                <div class="formula-box" style="padding: 12px; margin-bottom: 16px; background: #f8fafc; border: 1px dashed #cbd5e1; display: flex; flex-direction: column; gap: 8px;">
+                    <div class="math-block" style="margin-bottom: 0;">
+                        <span>θ = tan⁻¹(Rise / Run)</span>
+                    </div>
+                    <div class="math-block" style="margin-bottom: 0;">
+                        <span>θ = tan⁻¹(1/X) = tan⁻¹(S/100)</span>
+                    </div>
+                </div>
+                <ul class="var-list">
+                    <li>θ = Ramp Angle</li>
+                    <li>X = Gradient Factor</li>
+                    <li>S = Ramp Grade</li>
+                </ul>
+                <hr class="card-divider">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 8px;">Quick Conversion</label>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px;">Degrees</div>
+                    <div class="input-with-affix">
+                        <input type="number" id="conv_deg" placeholder="7.13" step="0.1">
+                        <span class="affix-suffix">°</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Quick Reference Table -->
+            <div class="card" style="padding: 16px;">
+                <div class="card-header" style="margin-bottom: 8px; padding-left: 4px;">
+                    <h2 class="card-title" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">QUICK REFERENCE TABLE</h2>
+                </div>
+                <div style="overflow-y: auto; flex: 1;">
+                    <table class="engineering-table" id="quick_ref_table" style="margin-top: 0;">
+                        <thead>
+                            <tr>
+                                <th>GRADIENT</th>
+                                <th>SLOPE %</th>
+                                <th>DEGREES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-g="6"><td>1:6</td><td>16.67%</td><td>9.46°</td></tr>
+                            <tr data-g="7"><td>1:7</td><td>14.29%</td><td>8.13°</td></tr>
+                            <tr data-g="8"><td>1:8</td><td>12.50%</td><td>7.13°</td></tr>
+                            <tr data-g="9"><td>1:9</td><td>11.11%</td><td>6.34°</td></tr>
+                            <tr data-g="10"><td>1:10</td><td>10.00%</td><td>5.71°</td></tr>
+                            <tr data-g="11"><td>1:11</td><td>9.09%</td><td>5.19°</td></tr>
+                            <tr data-g="12"><td>1:12</td><td>8.33%</td><td>4.76°</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-4" id="section_transitions">
+            
+            <!-- Card 1: Dynamic Engineering Design Criteria -->
+            <div class="card criteria-card-container" id="designCriteriaCard">
+                <div class="card-header">
+                    <h2 class="card-title" id="criteriaTitle">Dubai Transition Design Criteria</h2>
+                    <div class="card-subtitle" id="criteriaSubtitle">Dubai Building Code</div>
+                    <div class="status-badge" id="criteriaReference">Table B.10, Figure B.54</div>
+                </div>
+                <div id="criteriaBody" style="flex: 1; display: flex; flex-direction: column;">
+                    <!-- Content injected by JS -->
+                </div>
+            </div>
+
+            <!-- Card 2: Bottom Transition -->
+            <div class="card" style="border-top: 4px solid var(--primary-blue);">
+                <div class="card-header">
+                    <h2 class="card-title">BOTTOM TRANSITION</h2>
+                    <div class="card-subtitle">Transition Properties</div>
+                </div>
+                
+                <div class="segmented-control">
+                    <input type="radio" id="btm_en" name="btm_status" value="enabled" checked>
+                    <label for="btm_en">Enabled</label>
+                    <input type="radio" id="btm_dis" name="btm_status" value="disabled">
+                    <label for="btm_dis">Disabled</label>
+                </div>
+
+                <div class="input-group">
+                    <label>ENGINEERING STANDARD</label>
+                    <div class="custom-select-wrapper">
+                        <select id="btm_standard">
+                            <option value="dubai">🇦🇪 Dubai Building Code</option>
+                            <option value="nbc">🇮🇳 NBC India</option>
+                            <option value="go168">🏛 GO Ms. No. 168 (Hyderabad)</option>
+                            <option value="custom">⚙ Other (User Defined)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="tile-grid">
+                    <div class="metric-tile">
+                        <div class="tile-label">Trans. Grade</div>
+                        <div class="tile-value" id="btm_grade_val">5.00</div>
+                        <div class="tile-unit">%</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="tile-label">Trans. Length</div>
+                        <div class="tile-value" id="btm_len_val">3.00</div>
+                        <div class="tile-unit">m</div>
+                    </div>
+                </div>
+                <div class="tile-grid">
+                    <div class="metric-tile">
+                        <div class="tile-label">Vertical Rise</div>
+                        <div class="tile-value" id="btm_rise_val">150</div>
+                        <div class="tile-unit">mm</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="tile-label">Horiz. Proj.</div>
+                        <div class="tile-value" id="btm_run_val">3000</div>
+                        <div class="tile-unit">mm</div>
+                    </div>
+                </div>
+
+                <button class="btn-text" type="button" onclick="scrollToActiveDesignCriteria()">View Standard</button>
+            </div>
+
+            <!-- Card 3: Top Transition -->
+            <div class="card" style="border-top: 4px solid var(--accent-green);">
+                <div class="card-header">
+                    <h2 class="card-title">TOP TRANSITION</h2>
+                    <div class="card-subtitle">Transition Properties</div>
+                </div>
+                
+                <div class="segmented-control">
+                    <input type="radio" id="top_en" name="top_status" value="enabled" checked>
+                    <label for="top_en">Enabled</label>
+                    <input type="radio" id="top_dis" name="top_status" value="disabled">
+                    <label for="top_dis">Disabled</label>
+                </div>
+
+                <div class="input-group">
+                    <label>ENGINEERING STANDARD</label>
+                    <div class="custom-select-wrapper">
+                        <select id="top_standard">
+                            <option value="dubai">🇦🇪 Dubai Building Code</option>
+                            <option value="nbc">🇮🇳 NBC India</option>
+                            <option value="go168">🏛 GO Ms. No. 168 (Hyderabad)</option>
+                            <option value="custom">⚙ Other (User Defined)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="tile-grid">
+                    <div class="metric-tile">
+                        <div class="tile-label">Trans. Grade</div>
+                        <div class="tile-value" id="top_grade_val">5.00</div>
+                        <div class="tile-unit">%</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="tile-label">Trans. Length</div>
+                        <div class="tile-value" id="top_len_val">3.00</div>
+                        <div class="tile-unit">m</div>
+                    </div>
+                </div>
+                <div class="tile-grid">
+                    <div class="metric-tile">
+                        <div class="tile-label">Vertical Rise</div>
+                        <div class="tile-value" id="top_rise_val">150</div>
+                        <div class="tile-unit">mm</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="tile-label">Horiz. Proj.</div>
+                        <div class="tile-value" id="top_run_val">3000</div>
+                        <div class="tile-unit">mm</div>
+                    </div>
+                </div>
+
+                <button class="btn-text" type="button" onclick="scrollToActiveDesignCriteria()">View Standard</button>
+            </div>
+
+            <!-- Card 4: Overall Transition Summary -->
+            <div class="card" style="border-top: 4px solid var(--accent-purple);">
+                <div class="card-header">
+                    <h2 class="card-title">OVERALL TRANSITION</h2>
+                    <div class="card-subtitle">Calculated Summary (Read Only)</div>
+                </div>
+                
+                <div class="tile-grid">
+                    <div class="metric-tile">
+                        <div class="tile-label">Total Trans. Length</div>
+                        <div class="tile-value" id="tot_t_len">6.00</div>
+                        <div class="tile-unit">m</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="tile-label">Total Trans. Rise</div>
+                        <div class="tile-value" id="tot_t_rise">300</div>
+                        <div class="tile-unit">mm</div>
+                    </div>
+                </div>
+                
+                <div class="tile-grid">
+                    <div class="metric-tile" style="background: rgba(16, 185, 129, 0.05);">
+                        <div class="tile-label">Effective Ramp Rise</div>
+                        <div class="tile-value" id="eff_rise">1200</div>
+                        <div class="tile-unit">mm</div>
+                    </div>
+                    <div class="metric-tile" style="background: rgba(16, 185, 129, 0.05);">
+                        <div class="tile-label">Effective Horiz. Proj.</div>
+                        <div class="tile-value" id="eff_run">12000</div>
+                        <div class="tile-unit">mm</div>
+                    </div>
+                </div>
+                <div class="status-badge" style="margin-top: auto; text-align: center; background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); width: 100%;">
+                    ✓ Geometry Calculated
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            
+            <!-- Primary Design Input -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">PRIMARY RAMP DESIGN</h2>
+                    <div class="card-subtitle">Main Geometry Inputs</div>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>From Level Name</label>
+                        <input type="text" id="from_level_name" placeholder="e.g. Basement 2">
+                    </div>
+                    <div class="input-group">
+                        <label>From Elev. (mm)</label>
+                        <input type="number" id="from_elevation" value="-3000" step="10">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>To Level Name</label>
+                        <input type="text" id="to_level_name" placeholder="e.g. Basement 1">
+                    </div>
+                    <div class="input-group">
+                        <label>To Elev. (mm)</label>
+                        <input type="number" id="to_elevation" value="0" step="10">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Total Vertical Rise (mm)</label>
+                        <input type="number" id="main_rise" value="3000" readonly title="Auto-calculated from elevations">
+                    </div>
+                    <div class="input-group">
+                        <label>Total Horizontal Proj. (mm)</label>
+                        <input type="number" id="main_run" value="30000" step="10">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Ramp Gradient (1:X)</label>
+                        <input type="number" id="main_grad" value="10" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Ramp Grade (%)</label>
+                        <input type="number" id="main_pct" value="10.0" step="0.1" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile SVG (Upgraded CAD Style with Fullscreen) -->
+            <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 class="card-title">LONGITUDINAL RAMP PROFILE</h2>
+                        <div class="card-subtitle">Graphic Schematic</div>
+                    </div>
+                    <button class="btn-fullscreen" onclick="toggleFullscreen('svg_container')">FULLSCREEN</button>
+                </div>
+                <div class="svg-container" id="svg_container" style="background: rgba(15, 23, 42, 0.98);">
+                    <!-- SVG gets injected here via JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- ═══════════════════ 3D INTERACTIVE VISUALIZATION ═══════════════════ -->
+        <div class="card card-3d" id="card_3d">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+                <div>
+                    <h2 class="card-title">3D INTERACTIVE MODEL</h2>
+                    <div class="card-subtitle">Parametric real-time visualization — live-linked to every calculator input</div>
+                </div>
+                <div class="r3d-toolbar">
+                    <button class="btn-3d" id="r3d_btn_orbit" title="Cinematic auto-orbit">🎬 ORBIT</button>
+                    <button class="btn-3d" id="r3d_btn_drive" title="Animate vehicles on the ramp">🚗 DRIVE</button>
+                    <button class="btn-3d" id="r3d_btn_dims" title="Engineering dimension callouts">📏 DIMS</button>
+                    <span class="r3d-sep"></span>
+                    <button class="btn-3d" data-view="hero" title="Signature 3/4 hero view">✨ HERO</button>
+                    <button class="btn-3d" data-view="plan" title="Top-down plan view">🗺 PLAN</button>
+                    <button class="btn-3d" data-view="profile" title="Longitudinal profile view">📐 PROFILE</button>
+                    <button class="btn-3d" data-view="end" title="From the low level">🏁 END</button>
+                    <span class="r3d-sep"></span>
+                    <button class="btn-3d" id="r3d_btn_shot" title="Save a PNG snapshot">📸 CAPTURE</button>
+                    <button class="btn-fullscreen" id="r3d_btn_fs">FULLSCREEN</button>
+                </div>
+            </div>
+            <div class="r3d-stage" id="r3d_stage">
+                <div class="r3d-canvas-wrap" id="r3d_canvas_wrap"></div>
+                <div class="r3d-vignette"></div>
+                <div class="r3d-hud">
+                    <div class="r3d-chip"><span class="r3d-chip-k">TOTAL RUN</span><span class="r3d-chip-v" id="r3d_hud_run">—</span></div>
+                    <div class="r3d-chip"><span class="r3d-chip-k">TOTAL RISE</span><span class="r3d-chip-v" id="r3d_hud_rise">—</span></div>
+                    <div class="r3d-chip"><span class="r3d-chip-k">MAIN SLOPE</span><span class="r3d-chip-v" id="r3d_hud_slope">—</span></div>
+                    <div class="r3d-chip"><span class="r3d-chip-k">TRUE DECK LENGTH</span><span class="r3d-chip-v" id="r3d_hud_len">—</span></div>
+                    <div class="r3d-chip warn" id="r3d_hud_warn" style="display:none;"><span class="r3d-chip-k">GEOMETRY</span><span class="r3d-chip-v">Transitions exceed main run</span></div>
+                </div>
+                <div class="r3d-legend">
+                    <span><i class="r3d-dot" style="background:#94a3b8;color:#94a3b8;"></i>Concrete deck</span>
+                    <span><i class="r3d-dot" style="background:#22d3ee;color:#22d3ee;"></i>LED edge</span>
+                    <span><i class="r3d-dot" style="background:#d9e2ec;color:#d9e2ec;"></i>Steel rails</span>
+                    <span><i class="r3d-dot" style="background:#f59e0b;color:#f59e0b;"></i>Live traffic</span>
+                </div>
+                <div class="r3d-hint">🖱 Drag — orbit &nbsp;·&nbsp; Wheel — zoom &nbsp;·&nbsp; Right-drag — pan</div>
+                <div class="r3d-msg" id="r3d_msg" style="display:none;"></div>
+                <div class="r3d-loading" id="r3d_loading">
+                    <div class="r3d-spinner"></div>
+                    <div>Initializing 3D Engine — Three.js · PBR · Bloom</div>
+                </div>
+                <button class="r3d-close" id="r3d_close" title="Exit fullscreen">✕</button>
+            </div>
+        </div>
+
+        <!-- Fullscreen Overlay Container -->
+        <div id="fs_overlay">
+            <div id="fs_content"></div>
+            <button class="btn-close-fs" onclick="closeFullscreen()">✕</button>
+        </div>
+
+    </main>
+
+    <footer>
+        <div>Units: Metric (mm, m, °)</div>
+        <div>Calculation Status: <span style="color: var(--accent-green);">Active</span></div>
+    </footer>
+    
+    <!-- Modals & Sidebars -->
+    
+    <!-- Project Manager Modal -->
+    <div class="modal-overlay" id="pmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Project Manager</h2>
+                <button class="modal-close" onclick="pm.closeManager()">✕</button>
+            </div>
+            <div class="modal-body" style="padding:0;">
+                <div class="pm-layout">
+                    <!-- Sidebar: Project List -->
+                    <div class="pm-sidebar" style="padding: 24px; background: #f8fafc; border-right: 1px solid #e2e8f0;">
+                        <button class="btn-primary" style="margin-top:0;" onclick="pm.createProject()">+ New Project</button>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:16px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <span>SAVED PROJECTS</span>
+                            <span title="Projects are stored locally in your browser.">ℹ️ Local</span>
+                        </div>
+                        <input type="text" id="pmSearch" placeholder="Search projects..." style="padding:8px; font-size:0.85rem;" oninput="pm.renderProjectList()">
+                        <div class="project-list" id="pmListContainer">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Main: Project Details -->
+                    <div class="pm-main" style="padding: 24px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="font-size:1.1rem; color:var(--text-primary); margin:0;">Project Details</h3>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn-secondary" onclick="pm.duplicateProject()">Duplicate</button>
+                                <button class="btn-danger" onclick="pm.deleteProject()">Delete</button>
+                            </div>
+                        </div>
+                        
+                        <form id="pmForm" oninput="pm.saveProjectMetadata()">
+                            <div class="grid-2">
+                                <div class="input-group">
+                                    <label>Project Name <span style="color:var(--accent-red)">*</span></label>
+                                    <input type="text" name="name" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Client Name</label>
+                                    <input type="text" name="client">
+                                </div>
+                                <div class="input-group">
+                                    <label>Project Number</label>
+                                    <input type="text" name="projectNo">
+                                </div>
+                                <div class="input-group">
+                                    <label>Location</label>
+                                    <input type="text" name="location">
+                                </div>
+                                <div class="input-group">
+                                    <label>Date</label>
+                                    <input type="date" name="date">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Project Notes</label>
+                                <textarea name="notes" placeholder="General project remarks..."></textarea>
+                            </div>
+                            
+                            <details class="advanced-details">
+                                <summary>Advanced Details</summary>
+                                <div class="grid-2" style="margin-top:12px;">
+                                    <div class="input-group">
+                                        <label>Consultant</label>
+                                        <input type="text" name="consultant">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Contractor</label>
+                                        <input type="text" name="contractor">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Drawing Number</label>
+                                        <input type="text" name="drawingNo">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Revision</label>
+                                        <input type="text" name="revision" value="0">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Designer</label>
+                                        <input type="text" name="designer">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Checker / Approver</label>
+                                        <input type="text" name="checker">
+                                    </div>
+                                </div>
+                            </details>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="pm.closeManager()" style="margin:0;">Close</button>
+                <button class="btn-primary" onclick="pm.loadActiveProject()" style="margin:0; width:auto;">Open Project</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Level Manager Sidebar -->
+    <div class="level-sidebar-overlay" id="levelSidebar">
+        <div class="level-sb-header">
+            <h3 class="level-sb-title">Manage Ramp Levels</h3>
+            <button class="modal-close" style="color:var(--text-primary);" onclick="pm.toggleLevelSidebar()">✕</button>
+        </div>
+        <div style="padding: 16px; background: white; border-bottom: 1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">ACTIVE PROJECT</span>
+            <button class="btn-secondary" style="font-size:0.75rem; padding: 4px 8px;" onclick="pm.viewAllLevelsDiagram()">👁 View Elevation Diagram</button>
+        </div>
+        <div class="level-sb-body" id="levelListContainer">
+            <!-- Dynamic levels injected here -->
+        </div>
+        <div class="level-sb-footer">
+            <button class="btn-primary" style="margin:0;" onclick="pm.addLevel()">+ Add New Ramp Level</button>
+        </div>
+    </div>
+    
+    <!-- Edit Ramp Level Modal -->
+    <div class="modal-overlay" id="editLevelModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Edit Ramp Level</h2>
+                <button class="modal-close" onclick="pm.closeEditLevelModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="editLevelForm">
+                    <input type="hidden" id="edit_level_id">
+                    
+                    <h3 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-primary);">FROM LEVEL</h3>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>Level Name</label>
+                            <input type="text" id="edit_from_name" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Elevation (mm)</label>
+                            <input type="number" id="edit_from_elev" step="10" required>
+                        </div>
+                    </div>
+                    
+                    <h3 style="font-size: 0.9rem; margin-top: 16px; margin-bottom: 8px; color: var(--text-primary);">TO LEVEL</h3>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>Level Name</label>
+                            <input type="text" id="edit_to_name" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Elevation (mm)</label>
+                            <input type="number" id="edit_to_elev" step="10" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" type="button" onclick="pm.closeEditLevelModal()" style="margin:0;">Cancel</button>
+                <button class="btn-primary" type="button" onclick="pm.saveEditedLevel()" style="margin:0; width:auto;">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PDF Export Modal -->
+    <div class="modal-overlay" id="pdfModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Export Engineering Report</h2>
+                <button class="modal-close" onclick="pdf.closeExportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 24px;">Generate a professional PDF engineering report based on your calculations. Select the scope below.</p>
+                
+                <div class="input-group">
+                    <label>Export Scope</label>
+                    <div class="custom-select-wrapper">
+                        <select id="pdfScope">
+                            <option value="current">Current Ramp Level Only</option>
+                            <option value="project">Entire Project (All Ramp Levels)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="pdf.closeExportModal()" style="margin:0;">Cancel</button>
+                <button class="btn-primary" onclick="pdf.generateReport()" style="margin:0; width:auto;">Generate PDF</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- All Levels Elevation Diagram Modal -->
+    <div id="allLevelsOverlay">
+        <div id="allLevelsContent" style="background: rgba(15, 23, 42, 0.98); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);"></div>
+        <button class="btn-close-fs" onclick="pm.closeAllLevelsDiagram()">✕</button>
+    </div>
+    
+    <div id="globalLoader">
+        <div class="spinner"></div>
+        <div id="loaderText" style="font-weight: 600; color: var(--primary-blue); font-size: 1.1rem;">Processing...</div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Utilities
+        const generateId = () => 'id-' + Math.random().toString(36).substr(2, 9);
+        const showLoader = (text) => { document.getElementById('loaderText').innerText = text || "Processing..."; document.getElementById('globalLoader').style.display = 'flex'; };
+        const hideLoader = () => { document.getElementById('globalLoader').style.display = 'none'; };
+        
+        // Dynamic Script Loader for PDF Dependencies
+        const loadScript = async (src) => {
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src; s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Engineering Standards Data Model (Single Source of Truth)
+            const EngineeringStandards = {
+                dubai: {
+                    title: "Dubai Transition Design Criteria",
+                    subtitle: "Dubai Building Code",
+                    reference: "Table B.10, Figure B.54",
+                    type: "table",
+                    description: "Transition design as per Dubai Building Code.",
+                    engineeringNotes: "Standard transition guidelines for ramping structures.",
+                    transitionRules: "Determined automatically based on primary ramp slope.",
+                    transitionTable: [
+                        { rampSlope: "16.67% (1:6)", transSlope: "7%", transLength: "4.20 m", gradCondition: 6 },
+                        { rampSlope: "14.29% (1:7)", transSlope: "6%", transLength: "3.90 m", gradCondition: 7 },
+                        { rampSlope: "12.50% (1:8)", transSlope: "6%", transLength: "3.60 m", gradCondition: 8 },
+                        { rampSlope: "11.11% (1:9)", transSlope: "5%", transLength: "3.30 m", gradCondition: 9 },
+                        { rampSlope: "10.00% (1:10)", transSlope: "5%", transLength: "3.00 m", gradCondition: 10 },
+                        { rampSlope: "9.09% (1:11)", transSlope: "4%", transLength: "2.70 m", gradCondition: 11 },
+                        { rampSlope: "8.33% (1:12)", transSlope: "4%", transLength: "2.40 m", gradCondition: 12 }
+                    ],
+                    getParams: (mainGrad) => {
+                        const g = Math.round(mainGrad);
+                        if(g <= 6) return { tGrade: 7, tLen: 4.2 };
+                        if(g === 7) return { tGrade: 6, tLen: 3.9 };
+                        if(g === 8) return { tGrade: 6, tLen: 3.6 };
+                        if(g === 9) return { tGrade: 5, tLen: 3.3 };
+                        if(g === 10) return { tGrade: 5, tLen: 3.0 };
+                        if(g === 11) return { tGrade: 4, tLen: 2.7 };
+                        return { tGrade: 4, tLen: 2.4 };
+                    }
+                },
+                nbc: {
+                    title: "NBC India Transition Design Criteria",
+                    subtitle: "National Building Code of India",
+                    reference: "NBC Part 3 Parking Design",
+                    type: "table",
+                    description: "Transition design as per NBC India guidelines.",
+                    engineeringNotes: "Applies to standard parking configurations.",
+                    transitionRules: "NBC requires a fixed minimum transition.",
+                    transitionTable: [
+                        { rampSlope: "All Recommended Slopes", transSlope: "3%", transLength: "3.00 m Minimum", gradCondition: "all" }
+                    ],
+                    getParams: () => ({ tGrade: 3.0, tLen: 3.0 })
+                },
+                go168: {
+                    title: "GO Ms. No.168 Transition Design Criteria",
+                    subtitle: "Government of Telangana",
+                    reference: "GO Ms. No.168",
+                    type: "table",
+                    description: "Hyderabad Building Rules parking parameters.",
+                    engineeringNotes: "Calculations rely on established local municipal standards.",
+                    transitionRules: "Dependent on configured engineering practice.",
+                    transitionTable: [
+                        { rampSlope: "All Slopes", transSlope: "4%", transLength: "3.00 m", gradCondition: "all" }
+                    ],
+                    getParams: () => ({ tGrade: 4.0, tLen: 3.0 })
+                },
+                custom: {
+                    title: "Custom Engineering Standard",
+                    subtitle: "User Defined Engineering Parameters",
+                    reference: "User Defined",
+                    type: "custom",
+                    description: "No predefined engineering design code is applied.",
+                    engineeringNotes: "Please verify compliance with project specifications.",
+                    transitionRules: "The entered values below will govern all transition calculations.",
+                    getParams: () => {
+                        const rInput = document.getElementById("customParamTransSlope");
+                        const lInput = document.getElementById("customParamTransLength");
+                        return {
+                            tGrade: rInput ? parseFloat(rInput.value) || 5.0 : 5.0,
+                            tLen: lInput ? parseFloat(lInput.value) || 3.0 : 3.0
+                        };
+                    }
+                }
+            };
+
+            // 2. DOM Elements Mapping
+            const DOM = {
+                // Top Conversions
+                cG: document.getElementById('conv_grad'),
+                cP: document.getElementById('conv_pct'),
+                cD: document.getElementById('conv_deg'),
+                refTableRows: document.querySelectorAll('#quick_ref_table tbody tr'),
+                
+                // Primary Ramp
+                mRise: document.getElementById('main_rise'),
+                mRun: document.getElementById('main_run'),
+                mGrad: document.getElementById('main_grad'),
+                mPct: document.getElementById('main_pct'),
+                fLName: document.getElementById('from_level_name'),
+                fElev: document.getElementById('from_elevation'),
+                tLName: document.getElementById('to_level_name'),
+                tElev: document.getElementById('to_elevation'),
+                lNotes: document.getElementById('level_notes'),
+                btnCalc: document.getElementById('btn_calc'),
+                
+                // Transitions configuration
+                btmEn: document.getElementById('btm_en'),
+                topEn: document.getElementById('top_en'),
+                btmStd: document.getElementById('btm_standard'),
+                topStd: document.getElementById('top_standard'),
+                
+                // Transition Outputs (Tiles)
+                btmGradeVal: document.getElementById('btm_grade_val'),
+                btmLenVal: document.getElementById('btm_len_val'),
+                btmRiseVal: document.getElementById('btm_rise_val'),
+                btmRunVal: document.getElementById('btm_run_val'),
+                
+                topGradeVal: document.getElementById('top_grade_val'),
+                topLenVal: document.getElementById('top_len_val'),
+                topRiseVal: document.getElementById('top_rise_val'),
+                topRunVal: document.getElementById('top_run_val'),
+                
+                // Overall Outputs
+                totTLen: document.getElementById('tot_t_len'),
+                totTRise: document.getElementById('tot_t_rise'),
+                effRise: document.getElementById('eff_rise'),
+                effRun: document.getElementById('eff_run'),
+                
+                svgBox: document.getElementById('svg_container')
+            };
+
+            let currentVisibleStandard = 'dubai';
+
+            // Auto-calculate Rise based on From/To Elevations
+            const updateRiseFromElevations = () => {
+                const fe = parseFloat(DOM.fElev.value) || 0;
+                const te = parseFloat(DOM.tElev.value) || 0;
+                DOM.mRise.value = Math.abs(te - fe);
+                calculateApp();
+            };
+            
+            DOM.fElev.addEventListener('input', updateRiseFromElevations);
+            DOM.tElev.addEventListener('input', updateRiseFromElevations);
+
+            const convert = {
+                fromGrad: (g) => {
+                    if(!g || g<=0) return {p:'', d:''};
+                    return { p: (100/g).toFixed(2), d: (Math.atan(1/g)*180/Math.PI).toFixed(2) };
+                },
+                fromPct: (p) => {
+                    if(!p || p<=0) return {g:'', d:''};
+                    return { g: (100/p).toFixed(2), d: (Math.atan(p/100)*180/Math.PI).toFixed(2) };
+                },
+                fromDeg: (d) => {
+                    if(!d || d<=0 || d>=90) return {g:'', p:''};
+                    const rad = d * Math.PI / 180;
+                    return { g: (1/Math.tan(rad)).toFixed(2), p: (Math.tan(rad)*100).toFixed(2) };
+                }
+            };
+
+            // Synchronization function for Quick Reference Table
+            const syncReferenceTable = (gradValue) => {
+                DOM.refTableRows.forEach(r => r.classList.remove('active-row'));
+                if(!gradValue || isNaN(gradValue)) return;
+                
+                let nearestRow = null;
+                let minDiff = Infinity;
+                
+                DOM.refTableRows.forEach(row => {
+                    const rowG = parseFloat(row.getAttribute('data-g'));
+                    const diff = Math.abs(rowG - gradValue);
+                    // Threshold to select a row (e.g., within 0.5)
+                    if (diff < minDiff && diff <= 0.5) {
+                        minDiff = diff;
+                        nearestRow = row;
+                    }
+                });
+                
+                if (nearestRow) nearestRow.classList.add('active-row');
+            };
+
+            // Bind Top Conversion Cards (Bidirectional with Sync)
+            DOM.cG.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                const res = convert.fromGrad(val);
+                DOM.cP.value = res.p; DOM.cD.value = res.d;
+                syncReferenceTable(val);
+            });
+            DOM.cP.addEventListener('input', (e) => {
+                const res = convert.fromPct(parseFloat(e.target.value));
+                DOM.cG.value = res.g; DOM.cD.value = res.d;
+                syncReferenceTable(parseFloat(res.g));
+            });
+            DOM.cD.addEventListener('input', (e) => {
+                const res = convert.fromDeg(parseFloat(e.target.value));
+                DOM.cG.value = res.g; DOM.cP.value = res.p;
+                syncReferenceTable(parseFloat(res.g));
+            });
+
+            // Bind Quick Reference Table Click
+            DOM.refTableRows.forEach(row => {
+                row.addEventListener('click', () => {
+                    const g = parseFloat(row.getAttribute('data-g'));
+                    if(g) {
+                        DOM.cG.value = g;
+                        const res = convert.fromGrad(g);
+                        DOM.cP.value = res.p;
+                        DOM.cD.value = res.d;
+                        syncReferenceTable(g);
+                    }
+                });
+            });
+
+            window.updateEngineeringDesignCriteria = (designCodeKey, currentRampGradValue) => {
+                const card = document.getElementById("designCriteriaCard");
+                const standard = EngineeringStandards[designCodeKey];
+                
+                if (!standard || !card) return;
+                currentVisibleStandard = designCodeKey;
+
+                card.classList.add("fade-out");
+
+                setTimeout(() => {
+                    document.getElementById("criteriaTitle").innerText = standard.title;
+                    document.getElementById("criteriaSubtitle").innerText = standard.subtitle;
+                    document.getElementById("criteriaReference").innerText = standard.reference;
+
+                    const bodyContainer = document.getElementById("criteriaBody");
+
+                    if (standard.type === "table") {
+                        let tableHTML = `
+                            <div style="flex: 1; overflow-y: auto;">
+                                <table class="engineering-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Ramp Slope (R)</th>
+                                            <th>Trans. Slope (T)</th>
+                                            <th>Trans. Length (L)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        const roundedGrad = Math.round(currentRampGradValue);
+                        standard.transitionTable.forEach(row => {
+                            let isRowActive = (row.gradCondition === "all" || row.gradCondition === roundedGrad);
+                            tableHTML += `
+                                <tr class="${isRowActive ? 'active-row' : ''}">
+                                    <td>${row.rampSlope}</td>
+                                    <td>${row.transSlope}</td>
+                                    <td>${row.transLength}</td>
+                                </tr>
+                            `;
+                        });
+                        tableHTML += `</tbody></table></div>`;
+                        bodyContainer.innerHTML = tableHTML;
+                    } 
+                    else if (standard.type === "custom") {
+                        const defaultT = (currentRampGradValue > 0) ? (100 / currentRampGradValue / 2).toFixed(2) : '5.00';
+                        
+                        bodyContainer.innerHTML = `
+                            <div class="custom-standard-panel">
+                                <div class="design-information-box">
+                                    <strong>DESIGN INFORMATION</strong>
+                                    ${standard.description} ${standard.transitionRules}<br>
+                                </div>
+                                <div class="custom-input-grid">
+                                    <div class="custom-input-row">
+                                        <label>Ramp Slope (R) [1:X]</label>
+                                        <input type="number" id="customParamRamp" step="0.1" value="${currentRampGradValue ? currentRampGradValue.toFixed(1) : '10.0'}">
+                                    </div>
+                                    <div class="custom-input-row">
+                                        <label>Trans. Slope (T) [%]</label>
+                                        <input type="number" id="customParamTransSlope" step="0.1" value="${defaultT}">
+                                    </div>
+                                    <div class="custom-input-row">
+                                        <label>Trans. Length (L) [m]</label>
+                                        <input type="number" id="customParamTransLength" step="0.1" value="3.00">
+                                    </div>
+                                </div>
+                                <div id="liveValidationPanel" class="live-validation-panel validation-valid">
+                                    <span id="liveValidationMsg">🟢 Valid</span>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Bind live validation & recalculate
+                        const cr = document.getElementById("customParamRamp");
+                        const ct = document.getElementById("customParamTransSlope");
+                        const cl = document.getElementById("customParamTransLength");
+                        
+                        const validateCustom = () => {
+                            const rGrad = parseFloat(cr.value) || 0;
+                            const rSlope = rGrad > 0 ? (100/rGrad) : 0;
+                            const t = parseFloat(ct.value) || 0;
+                            const l = parseFloat(cl.value) || 0;
+                            const panel = document.getElementById("liveValidationPanel");
+                            const msg = document.getElementById("liveValidationMsg");
+                            
+                            panel.className = "live-validation-panel";
+                            if (t >= rSlope && rSlope > 0) {
+                                panel.classList.add("validation-warning");
+                                msg.innerHTML = "🔴 <strong>Review:</strong> Trans. Slope exceeds Main Ramp Slope.";
+                            } else if (t > 10) {
+                                panel.classList.add("validation-warning");
+                                msg.innerHTML = "🔴 <strong>Review:</strong> Trans. Slope exceeds standard maximum.";
+                            } else if (l < 2.0 && l > 0) {
+                                panel.classList.add("validation-review");
+                                msg.innerHTML = "🟡 <strong>Review:</strong> Trans. Length shorter than recommended bounds.";
+                            } else {
+                                panel.classList.add("validation-valid");
+                                msg.innerHTML = "🟢 <strong>Valid:</strong> Geometry within standard acceptable bounds.";
+                            }
+                            
+                            // Synchronize back to main calculation
+                            if(parseFloat(DOM.mGrad.value) !== rGrad) {
+                                DOM.mGrad.value = rGrad;
+                            }
+                            calculateApp(); 
+                        };
+
+                        cr.addEventListener("input", validateCustom);
+                        ct.addEventListener("input", validateCustom);
+                        cl.addEventListener("input", validateCustom);
+                        validateCustom();
+                    }
+
+                    card.classList.remove("fade-out");
+                }, 300);
+            };
+
+            // Expose scroll function globally
+            window.scrollToActiveDesignCriteria = () => {
+                const criteriaCard = document.getElementById("designCriteriaCard");
+                if (criteriaCard) {
+                    criteriaCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    criteriaCard.style.boxShadow = "0 0 15px var(--primary-blue)";
+                    setTimeout(() => { criteriaCard.style.boxShadow = "var(--shadow-soft)"; }, 1000);
+                }
+            };
+
+            DOM.btmStd.addEventListener('change', (e) => {
+                DOM.topStd.value = e.target.value; 
+                updateEngineeringDesignCriteria(e.target.value, parseFloat(DOM.mGrad.value) || 10);
+                calculateApp();
+            });
+            DOM.topStd.addEventListener('change', (e) => {
+                DOM.btmStd.value = e.target.value;
+                updateEngineeringDesignCriteria(e.target.value, parseFloat(DOM.mGrad.value) || 10);
+                calculateApp();
+            });
+
+            const calculateApp = () => {
+                // 1. Get Main inputs
+                let mR = parseFloat(DOM.mRise.value) || 0;
+                let mGrad = parseFloat(DOM.mGrad.value) || 10;
+                
+                // Calc Main Run based on gradient
+                let mRun = mR * mGrad;
+                DOM.mRun.value = mRun.toFixed(0);
+                DOM.mPct.value = (100/mGrad).toFixed(2);
+                
+                // Sync reference highlight for main form gradient change
+                syncReferenceTable(mGrad);
+                
+                // 2. Process Bottom Transition
+                let bG = 0, bL = 0, bRun = 0, bRise = 0;
+                if (DOM.btmEn.checked) {
+                    const stdKey = DOM.btmStd.value;
+                    const params = EngineeringStandards[stdKey].getParams(mGrad);
+                    bG = params.tGrade;
+                    bL = params.tLen;
+                    bRun = bL * 1000;
+                    bRise = bRun * (bG / 100);
+                }
+                
+                DOM.btmGradeVal.textContent = bG.toFixed(2);
+                DOM.btmLenVal.textContent = bL.toFixed(2);
+                DOM.btmRiseVal.textContent = bRise.toFixed(0);
+                DOM.btmRunVal.textContent = bRun.toFixed(0);
+
+                // 3. Process Top Transition
+                let tG = 0, tL = 0, tRun = 0, tRise = 0;
+                if (DOM.topEn.checked) {
+                    const stdKey = DOM.topStd.value;
+                    const params = EngineeringStandards[stdKey].getParams(mGrad);
+                    tG = params.tGrade;
+                    tL = params.tLen;
+                    tRun = tL * 1000;
+                    tRise = tRun * (tG / 100);
+                }
+
+                DOM.topGradeVal.textContent = tG.toFixed(2);
+                DOM.topLenVal.textContent = tL.toFixed(2);
+                DOM.topRiseVal.textContent = tRise.toFixed(0);
+                DOM.topRunVal.textContent = tRun.toFixed(0);
+
+                // 4. Overall Totals
+                const totLen = bL + tL;
+                const totRise = bRise + tRise;
+                DOM.totTLen.textContent = totLen.toFixed(2);
+                DOM.totTRise.textContent = totRise.toFixed(0);
+
+                // 5. Effective Ramp
+                const eRise = mR - totRise;
+                const eRun = mRun - bRun - tRun;
+                DOM.effRise.textContent = eRise.toFixed(0);
+                DOM.effRun.textContent = eRun.toFixed(0);
+                
+                // Keep Dynamic card in sync if it's a table type
+                if (EngineeringStandards[currentVisibleStandard].type === 'table') {
+                    const rows = document.querySelectorAll('#criteriaBody .engineering-table tbody tr');
+                    rows.forEach(r => r.classList.remove('active-row'));
+                    const stdData = EngineeringStandards[currentVisibleStandard].transitionTable;
+                    stdData.forEach((data, index) => {
+                         if (data.gradCondition === "all" || data.gradCondition === Math.round(mGrad)) {
+                             if(rows[index]) rows[index].classList.add('active-row');
+                         }
+                    });
+                }
+
+                // 7. Update Graphic
+                drawSVG(bRun, bRise, eRun, eRise, tRun, tRise);
+
+                // 8. 3D LIVE-LINK — push geometry to the interactive model
+                try {
+                    const payload3d = {
+                        bRun, bRise, eRun, eRise, tRun, tRise,
+                        mRun, mRise: mR, mGrad, mPct: (100 / mGrad),
+                        bGrade: bG, tGrade: tG,
+                        fromName: (DOM.fLName.value || 'From Level').trim(),
+                        fromElev: parseFloat(DOM.fElev.value) || 0,
+                        toName: (DOM.tLName.value || 'To Level').trim(),
+                        toElev: parseFloat(DOM.tElev.value) || 0
+                    };
+                    window.__lastRamp3DData = payload3d;
+                    if (window.Ramp3D && typeof window.Ramp3D.setData === 'function') {
+                        window.Ramp3D.setData(payload3d);
+                    }
+                } catch (err3d) { /* 3D is non-critical — never block the calculator */ }
+                
+                // Auto-save logic hooks into PM
+                if(window.pm && typeof window.pm.autoSaveLevel === 'function') {
+                    window.pm.autoSaveLevel();
+                }
+            };
+
+            const drawSVG = (bR, bRise, eR, eRise, tR, tRise) => {
+                const totalRun = bR + eR + tR;
+                const totalRise = bRise + eRise + tRise;
+                
+                if(totalRun <= 0 || totalRise <= 0) {
+                    DOM.svgBox.innerHTML = '<div style="color:var(--text-secondary); text-align:center; padding-top:100px;">Invalid Geometry for SVG</div>';
+                    return;
+                }
+
+                // Internal CAD Viewport Scaling
+                const vw = 1200;
+                const vh = 800; // Expanded to accommodate professional dimensions
+                
+                // Margins & Layout
+                const pLeft = 120;
+                const pRight = 200;
+                const drawW = vw - pLeft - pRight;
+                
+                const sectionH = 240; // Height allocated for the section profile
+                const pBaseY = 340;   // Ground Level (Y coordinate)
+                
+                const scaleX = drawW / totalRun;
+                const scaleY = sectionH / totalRise;
+
+                // Section Path Points (Drawing Bottom-Up)
+                const p0 = { x: pLeft, y: pBaseY };
+                const p1 = { x: p0.x + (bR * scaleX), y: p0.y - (bRise * scaleY) };
+                const p2 = { x: p1.x + (eR * scaleX), y: p1.y - (eRise * scaleY) };
+                const p3 = { x: p2.x + (tR * scaleX), y: p2.y - (tRise * scaleY) };
+
+                // True Lengths (Hypotenuse)
+                const bLen = Math.hypot(bR, bRise);
+                const eLen = Math.hypot(eR, eRise);
+                const tLen = Math.hypot(tR, tRise);
+                const totalLength = bLen + eLen + tLen;
+
+                // Engineering Slope Formatting Helper
+                const getSlopeParams = (run, rise) => {
+                    if(run <= 0 || rise <= 0) return { grad: 'N/A', pct: '0.00%' };
+                    const grad = run / rise;
+                    const pct = (rise / run) * 100;
+                    return { grad: `1:${grad.toFixed(2)}`, pct: `${pct.toFixed(2)}%` };
+                };
+                const bParams = getSlopeParams(bR, bRise);
+                const eParams = getSlopeParams(eR, eRise);
+                const tParams = getSlopeParams(tR, tRise);
+
+                // Fetch dynamic level names and elevations
+                const fName = DOM.fLName.value || 'GL';
+                const fElevText = DOM.fElev.value ? `(${DOM.fElev.value})` : '';
+                const tName = DOM.tLName.value || 'FFL';
+                const tElevText = DOM.tElev.value ? `(${DOM.tElev.value})` : '';
+                
+                const fromLabel = `${fName} ${fElevText}`;
+                const toLabel = `${tName} ${tElevText}`;
+
+                // SVG CAD Dimension Drawing Helpers
+                const drawDimH = (x1, x2, dimY, text, isMain = false) => {
+                    if (Math.abs(x2 - x1) < 5) return '';
+                    const mx = (x1 + x2) / 2;
+                    const textWidth = text.length * 8 + (isMain ? 20 : 10);
+                    // Using off-white colors suitable for dark background
+                    const textColor = isMain ? '#38bdf8' : '#cbd5e1'; 
+                    const fontWeight = isMain ? '700' : '600';
+                    const fontSize = isMain ? '14' : '13';
+                    const rectFill = 'rgba(15, 23, 42, 0.98)';
+                    
+                    return `
+                    <line x1="${x1}" y1="${dimY}" x2="${x2}" y2="${dimY}" stroke="#64748b" stroke-width="1.5" marker-start="url(#arrow-start)" marker-end="url(#arrow-end)"/>
+                    <rect x="${mx - textWidth/2}" y="${dimY-10}" width="${textWidth}" height="20" fill="${rectFill}"/>
+                    <text x="${mx}" y="${dimY+4}" font-family="monospace" font-size="${fontSize}" font-weight="${fontWeight}" fill="${textColor}" text-anchor="middle">${text}</text>
+                    `;
+                }
+
+                const drawDimV = (x, y1, y2, xObj1, xObj2, text) => {
+                    if (Math.abs(y1 - y2) < 5) return '';
+                    const midY = (y1+y2)/2;
+                    const textWidth = text.length * 8 + 10;
+                    const rectFill = 'rgba(15, 23, 42, 0.98)';
+                    return `
+                    <line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="#64748b" stroke-width="1.5" marker-start="url(#arrow-start)" marker-end="url(#arrow-end)"/>
+                    <line x1="${xObj1}" y1="${y1}" x2="${x+5}" y2="${y1}" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,4"/>
+                    <line x1="${xObj2}" y1="${y2}" x2="${x+5}" y2="${y2}" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,4"/>
+                    <rect x="${x-12}" y="${midY - textWidth/2}" width="24" height="${textWidth}" fill="${rectFill}"/>
+                    <text x="${x}" y="${midY+4}" font-family="monospace" font-size="13" font-weight="600" fill="#cbd5e1" text-anchor="middle" transform="rotate(-90, ${x}, ${midY})">${text}</text>
+                    `;
+                }
+                
+                const drawSlopeLabel = (pStart, pEnd, label1, label2, label3, length) => {
+                    const dx = pEnd.x - pStart.x;
+                    const dy = pEnd.y - pStart.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 10) return '';
+                    
+                    const mx = (pStart.x + pEnd.x) / 2;
+                    const my = (pStart.y + pEnd.y) / 2;
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    
+                    // Normal offset calculation to prevent line overlapping
+                    const nx = dy / dist;
+                    const ny = -dx / dist;
+                    const offsetDist = 55; 
+                    const cx = mx + nx * offsetDist;
+                    const cy = my + ny * offsetDist;
+                    
+                    return `
+                    <g transform="translate(${cx}, ${cy}) rotate(${angle})">
+                        <text x="0" y="-18" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="#38bdf8" text-anchor="middle">${label1}</text>
+                        <text x="0" y="0" font-family="monospace" font-size="12" font-weight="600" fill="#f8fafc" text-anchor="middle">Gradient: ${label2}</text>
+                        <text x="0" y="16" font-family="monospace" font-size="12" font-weight="600" fill="#f8fafc" text-anchor="middle">Slope: ${label3}</text>
+                        <text x="0" y="32" font-family="monospace" font-size="12" font-weight="600" fill="#cbd5e1" text-anchor="middle">Length: ${length.toFixed(0)} mm</text>
+                    </g>
+                    `;
+                }
+
+                // Initialize SVG Frame with dynamic xmlns to prevent PDF export bugs
+                let svg = `<svg viewBox="0 0 ${vw} ${vh}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="background: rgba(15, 23, 42, 0.98);">`;
+                svg += `<defs>
+                    <marker id="arrow-start" markerWidth="10" markerHeight="10" refX="0" refY="5" orient="auto-start-reverse">
+                        <path d="M 10 0 L 0 5 L 10 10 Z" fill="#64748b"/>
+                    </marker>
+                    <marker id="arrow-end" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                        <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748b"/>
+                    </marker>
+                </defs>`;
+
+                // View Titles
+                svg += `<text x="${vw/2}" y="40" font-family="Inter, sans-serif" font-weight="800" font-size="20" fill="#f8fafc" letter-spacing="1" text-anchor="middle">LONGITUDINAL SECTION</text>`;
+                const planTitleY = pBaseY + 180;
+                svg += `<text x="${vw/2}" y="${planTitleY}" font-family="Inter, sans-serif" font-weight="800" font-size="20" fill="#f8fafc" letter-spacing="1" text-anchor="middle">PLAN VIEW</text>`;
+
+                // ==========================================
+                // 1. DRAW SECTION VIEW
+                // ==========================================
+                
+                // Elevation Marker Lines
+                svg += `<line x1="40" y1="${p0.y}" x2="${p0.x}" y2="${p0.y}" stroke="#475569" stroke-width="2" stroke-dasharray="8,4"/>`;
+                svg += `<line x1="${p3.x}" y1="${p3.y}" x2="${vw - 40}" y2="${p3.y}" stroke="#475569" stroke-width="2" stroke-dasharray="8,4"/>`;
+                svg += `<text x="40" y="${p0.y - 10}" font-family="Inter, sans-serif" font-weight="700" font-size="14" fill="#cbd5e1">${fromLabel}</text>`;
+                svg += `<text x="${vw - 40}" y="${p3.y - 10}" font-family="Inter, sans-serif" font-weight="700" font-size="14" fill="#cbd5e1" text-anchor="end">${toLabel}</text>`;
+
+                // Main Ramp Graphic Path
+                svg += `<path d="M ${p0.x} ${p0.y} L ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y}" fill="none" stroke="#38bdf8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
+                
+                // Segment Nodes
+                const drawNode = (pt) => `<circle cx="${pt.x}" cy="${pt.y}" r="4" fill="#38bdf8"/>`;
+                svg += drawNode(p0) + drawNode(p1) + drawNode(p2) + drawNode(p3);
+
+                // Horizontal Dimensions
+                const dimYChain = pBaseY + 60;
+                const dimYOverall = pBaseY + 110;
+                
+                // Vertical Extension Lines for Horizontal Dims
+                svg += `<line x1="${p0.x}" y1="${p0.y}" x2="${p0.x}" y2="${dimYOverall+10}" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+                if(bR > 0) svg += `<line x1="${p1.x}" y1="${p1.y}" x2="${p1.x}" y2="${dimYChain+10}" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+                if(eR > 0) svg += `<line x1="${p2.x}" y1="${p2.y}" x2="${p2.x}" y2="${dimYChain+10}" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+                svg += `<line x1="${p3.x}" y1="${p3.y}" x2="${p3.x}" y2="${dimYOverall+10}" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+
+                // Horizontal Dimension Chains
+                if(bR > 0) svg += drawDimH(p0.x, p1.x, dimYChain, bR.toFixed(0));
+                if(eR > 0) svg += drawDimH(p1.x, p2.x, dimYChain, eR.toFixed(0));
+                if(tR > 0) svg += drawDimH(p2.x, p3.x, dimYChain, tR.toFixed(0));
+                
+                // Overall Horizontal Dimension
+                svg += drawDimH(p0.x, p3.x, dimYOverall, `TOTAL HORIZONTAL PROJECTION = ${totalRun.toFixed(0)} mm`, true);
+                
+                // True Length Annotation (Separate Note)
+                svg += `<text x="${vw/2}" y="${dimYOverall + 40}" font-family="monospace" font-size="14" font-weight="700" fill="#38bdf8" text-anchor="middle">TRUE RAMP LENGTH = ${totalLength.toFixed(0)} mm</text>`;
+
+                // Section Vertical Dimensions
+                const vDimX1 = p3.x + 60;
+                const vDimX2 = p3.x + 120;
+                if(tRise > 0) svg += drawDimV(vDimX1, p3.y, p2.y, p3.x, p2.x, tRise.toFixed(0));
+                if(eRise > 0) svg += drawDimV(vDimX1, p2.y, p1.y, p2.x, p1.x, eRise.toFixed(0));
+                if(bRise > 0) svg += drawDimV(vDimX1, p1.y, p0.y, p1.x, p0.x, bRise.toFixed(0));
+                svg += drawDimV(vDimX2, p3.y, p0.y, p3.x, p0.x, totalRise.toFixed(0));
+
+                // Section Slope/Gradient Labels (offset normal to the slope to prevent collisions)
+                if(bR > 0) svg += drawSlopeLabel(p0, p1, 'Bottom Transition', bParams.grad, bParams.pct, bLen);
+                if(eR > 0) svg += drawSlopeLabel(p1, p2, 'Main Ramp', eParams.grad, eParams.pct, eLen);
+                if(tR > 0) svg += drawSlopeLabel(p2, p3, 'Top Transition', tParams.grad, tParams.pct, tLen);
+
+                // ==========================================
+                // 2. DRAW PLAN VIEW
+                // ==========================================
+                
+                const planY = pBaseY + 220;
+                const planH = 100;
+                
+                // Base Plan Outline
+                svg += `<rect x="${p0.x}" y="${planY}" width="${drawW}" height="${planH}" fill="#1e293b" stroke="#475569" stroke-width="2"/>`;
+                
+                const drawPlanSegment = (x1, x2, name, grad, pct, len) => {
+                    const segW = x2 - x1;
+                    if (segW < 5) return '';
+                    const mx = (x1 + x2) / 2;
+                    let html = '';
+                    
+                    if (segW < 140) {
+                        // Narrow segment: rotate text to avoid collision
+                        html += `
+                        <g transform="translate(${mx}, ${planY + planH/2}) rotate(-90)">
+                            <text x="0" y="-12" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#38bdf8" text-anchor="middle">${name}</text>
+                            <text x="0" y="4" font-family="monospace" font-size="12" font-weight="600" fill="#f8fafc" text-anchor="middle">${grad} | ${pct}</text>
+                            <text x="0" y="20" font-family="monospace" font-size="12" fill="#cbd5e1" text-anchor="middle">L: ${len.toFixed(0)}</text>
+                        </g>`;
+                    } else {
+                        // Wide segment: standard text layout
+                        html += `
+                        <text x="${mx}" y="${planY + 36}" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="#38bdf8" text-anchor="middle">${name}</text>
+                        <text x="${mx}" y="${planY + 58}" font-family="monospace" font-size="13" font-weight="600" fill="#f8fafc" text-anchor="middle">Gradient: ${grad} | Slope: ${pct}</text>
+                        <text x="${mx}" y="${planY + 80}" font-family="monospace" font-size="13" fill="#cbd5e1" text-anchor="middle">Length: ${len.toFixed(0)} mm</text>
+                        `;
+                    }
+                    return html;
+                }
+                
+                // Zone Dividers and Text Annotations
+                if(bR > 0) {
+                    svg += `<line x1="${p1.x}" y1="${planY}" x2="${p1.x}" y2="${planY+planH}" stroke="#475569" stroke-width="2" stroke-dasharray="6,4"/>`;
+                    svg += drawPlanSegment(p0.x, p1.x, 'Bottom Transition', bParams.grad, bParams.pct, bR);
+                }
+                
+                if(eR > 0) {
+                    svg += drawPlanSegment(p1.x, p2.x, 'Main Ramp', eParams.grad, eParams.pct, eR);
+                }
+                
+                if(tR > 0) {
+                    svg += `<line x1="${p2.x}" y1="${planY}" x2="${p2.x}" y2="${planY+planH}" stroke="#475569" stroke-width="2" stroke-dasharray="6,4"/>`;
+                    svg += drawPlanSegment(p2.x, p3.x, 'Top Transition', tParams.grad, tParams.pct, tR);
+                }
+
+                svg += `</svg>`;
+                DOM.svgBox.innerHTML = svg;
+                // Expose globally for PDF
+                window.lastGeneratedSVG = svg; 
+            };
+
+            // Bind Calculation Triggers
+            const inputsToBind = [
+                DOM.btmEn, DOM.topEn, DOM.mRise, DOM.mGrad, DOM.mRun, DOM.fLName, DOM.tLName
+            ];
+            inputsToBind.forEach(el => {
+                if(el) {
+                    el.addEventListener('change', calculateApp);
+                    if(el.type === 'number' || el.type === 'text') el.addEventListener('input', calculateApp);
+                }
+            });
+            if(DOM.btnCalc) DOM.btnCalc.addEventListener('click', calculateApp);
+            window.addEventListener('resize', calculateApp);
+
+            // Trigger global exposed calc
+            window.triggerCalculateApp = calculateApp;
+
+            // Init calculation
+            updateEngineeringDesignCriteria('dubai', 10);
+            calculateApp();
+            
+            // Init PM after calc is set up
+            if (window.pm && window.pm.init) {
+                window.pm.init();
+            }
+        });
+
+        // ----------------------------------------------------
+        // FULLSCREEN VIEWER LOGIC (Original)
+        // ----------------------------------------------------
+        let fsScale = 1, fsTx = 0, fsTy = 0, isDragging = false, startX = 0, startY = 0;
+
+        window.toggleFullscreen = function(id) {
+            const container = document.getElementById(id);
+            const overlay = document.getElementById('fs_overlay');
+            const content = document.getElementById('fs_content');
+            
+            content.innerHTML = container.innerHTML;
+            
+            const svg = content.querySelector('svg');
+            if(svg) {
+                svg.style.width = '100%';
+                svg.style.height = '100%';
+                svg.style.maxHeight = '90vh';
+            }
+
+            overlay.style.display = 'flex';
+            void overlay.offsetWidth; // reflow
+            overlay.style.opacity = '1';
+            document.body.style.overflow = 'hidden';
+            
+            fsScale = 1; fsTx = 0; fsTy = 0;
+            content.style.transform = `translate(0px, 0px) scale(1)`;
+
+            overlay.onwheel = (e) => {
+                e.preventDefault();
+                const zoomIntensity = 0.1;
+                const wheel = e.deltaY < 0 ? 1 : -1;
+                fsScale += wheel * zoomIntensity * fsScale;
+                fsScale = Math.max(0.5, Math.min(fsScale, 8));
+                content.style.transform = `translate(${fsTx}px, ${fsTy}px) scale(${fsScale})`;
+            };
+
+            overlay.onmousedown = (e) => {
+                if (e.target.tagName === 'BUTTON') return;
+                isDragging = true;
+                startX = e.clientX - fsTx;
+                startY = e.clientY - fsTy;
+                overlay.style.cursor = 'grabbing';
+            };
+
+            overlay.onmousemove = (e) => {
+                if (!isDragging) return;
+                fsTx = e.clientX - startX;
+                fsTy = e.clientY - startY;
+                content.style.transform = `translate(${fsTx}px, ${fsTy}px) scale(${fsScale})`;
+            };
+
+            overlay.onmouseup = () => { isDragging = false; overlay.style.cursor = 'zoom-out'; };
+            overlay.onmouseleave = overlay.onmouseup;
+            overlay.onclick = (e) => { if (e.target === overlay) closeFullscreen(); };
+        };
+
+        window.closeFullscreen = function() {
+            const overlay = document.getElementById('fs_overlay');
+            if (overlay.style.display === 'flex') {
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    document.getElementById('fs_content').innerHTML = '';
+                }, 300);
+            }
+        };
+
+        document.addEventListener('keydown', (e) => { if(e.key === 'Escape') { closeFullscreen(); if(window.pm) pm.closeAllLevelsDiagram(); } });
+
+        // ----------------------------------------------------
+        // NEW FEATURE: PROJECT MANAGEMENT SYSTEM
+        // ----------------------------------------------------
+        window.pm = {
+            storageKey: 'AryanRampDB_V2',
+            data: { projects: [], activeProjectId: null, activeLevelId: null },
+            saveTimeout: null,
+            
+            init() {
+                this.loadFromStorage();
+                if (this.data.projects.length === 0) {
+                    this.createProject(true);
+                } else if (!this.data.activeProjectId) {
+                    this.data.activeProjectId = this.data.projects[0].id;
+                    this.data.activeLevelId = this.data.projects[0].levels[0].id;
+                    this.saveToStorage();
+                }
+                
+                // Add auto-save listeners to all standard inputs
+                document.body.addEventListener('input', (e) => {
+                    if(['INPUT', 'SELECT', 'RADIO', 'TEXTAREA'].includes(e.target.tagName)) {
+                        // Don't auto-save PM modal metadata fields here, they have their own handler
+                        if(!e.target.closest('#pmModal')) {
+                            this.autoSaveLevel();
+                        }
+                    }
+                });
+                
+                this.loadLevelData(this.data.activeLevelId);
+                this.updateProjectIndicator();
+            },
+            
+            loadFromStorage() {
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    if (stored) this.data = JSON.parse(stored);
+                } catch(e) { console.error("Storage Error:", e); }
+            },
+            
+            saveToStorage() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+                    this.updateProjectIndicator();
+                } catch(e) { console.error("Storage Error:", e); }
+            },
+            
+            updateProjectIndicator() {
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                const el = document.getElementById('project_indicator');
+                if(el) {
+                    el.innerText = project ? `Current Project: ${project.name}` : `Current Project: None`;
+                }
+            },
+            
+            autoSaveLevel() {
+                clearTimeout(this.saveTimeout);
+                this.saveTimeout = setTimeout(() => this.saveCurrentLevelDOM(), 500);
+            },
+            
+            saveCurrentLevelDOM() {
+                if(!this.data.activeProjectId || !this.data.activeLevelId) return;
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(!project) return;
+                const level = project.levels.find(l => l.id === this.data.activeLevelId);
+                if(!level) return;
+                
+                level.inputs = {
+                    from_level_name: document.getElementById('from_level_name')?.value || '',
+                    from_elevation: document.getElementById('from_elevation')?.value || 0,
+                    to_level_name: document.getElementById('to_level_name')?.value || '',
+                    to_elevation: document.getElementById('to_elevation')?.value || 0,
+                    main_rise: document.getElementById('main_rise')?.value,
+                    main_run: document.getElementById('main_run')?.value,
+                    main_grad: document.getElementById('main_grad')?.value,
+                    btm_en: document.getElementById('btm_en')?.checked,
+                    btm_standard: document.getElementById('btm_standard')?.value,
+                    top_en: document.getElementById('top_en')?.checked,
+                    top_standard: document.getElementById('top_standard')?.value,
+                    level_notes: document.getElementById('level_notes')?.value || ''
+                };
+                
+                const cr = document.getElementById('customParamRamp');
+                if (cr) {
+                    level.inputs.custom_r = cr.value;
+                    level.inputs.custom_t = document.getElementById('customParamTransSlope')?.value;
+                    level.inputs.custom_l = document.getElementById('customParamTransLength')?.value;
+                }
+                
+                this.saveToStorage();
+                // update sidebar if open
+                if(document.getElementById('levelSidebar').classList.contains('open')) {
+                    this.renderLevelList(); 
+                }
+            },
+            
+            async loadLevelData(levelId) {
+                const project = this.data.projects.find(p => p.levels.some(l => l.id === levelId));
+                if(!project) return;
+                const level = project.levels.find(l => l.id === levelId);
+                if(!level || !level.inputs) return;
+                
+                this.data.activeProjectId = project.id;
+                this.data.activeLevelId = level.id;
+                this.saveToStorage();
+                
+                if(document.getElementById('levelSidebar').classList.contains('open')) {
+                    this.renderLevelList();
+                }
+
+                // Populate Fields
+                const setVal = (id, val) => { const el = document.getElementById(id); if(el && val !== undefined) el.value = val; };
+                
+                setVal('from_level_name', level.inputs.from_level_name);
+                setVal('from_elevation', level.inputs.from_elevation !== undefined ? level.inputs.from_elevation : -3000);
+                setVal('to_level_name', level.inputs.to_level_name);
+                setVal('to_elevation', level.inputs.to_elevation !== undefined ? level.inputs.to_elevation : 0);
+                
+                setVal('main_rise', level.inputs.main_rise || 3000);
+                setVal('main_run', level.inputs.main_run || 30000);
+                setVal('main_grad', level.inputs.main_grad || 10);
+                setVal('level_notes', level.inputs.level_notes || '');
+                
+                if(level.inputs.btm_en !== undefined) {
+                    if(document.getElementById('btm_en')) document.getElementById('btm_en').checked = level.inputs.btm_en;
+                    if(document.getElementById('btm_dis')) document.getElementById('btm_dis').checked = !level.inputs.btm_en;
+                }
+                if(level.inputs.top_en !== undefined) {
+                    if(document.getElementById('top_en')) document.getElementById('top_en').checked = level.inputs.top_en;
+                    if(document.getElementById('top_dis')) document.getElementById('top_dis').checked = !level.inputs.top_en;
+                }
+                
+                const bStd = document.getElementById('btm_standard');
+                if(bStd && level.inputs.btm_standard) bStd.value = level.inputs.btm_standard;
+                const tStd = document.getElementById('top_standard');
+                if(tStd && level.inputs.top_standard) tStd.value = level.inputs.top_standard;
+                
+                if (window.updateEngineeringDesignCriteria && bStd) {
+                    window.updateEngineeringDesignCriteria(bStd.value, parseFloat(level.inputs.main_grad || 10));
+                }
+
+                if ((bStd && bStd.value === 'custom') || (tStd && tStd.value === 'custom')) {
+                    await new Promise(r => setTimeout(r, 350));
+                    if(level.inputs.custom_r && document.getElementById('customParamRamp')) {
+                        document.getElementById('customParamRamp').value = level.inputs.custom_r;
+                        document.getElementById('customParamTransSlope').value = level.inputs.custom_t || 5;
+                        document.getElementById('customParamTransLength').value = level.inputs.custom_l || 3;
+                    }
+                }
+                
+                if(window.triggerCalculateApp) window.triggerCalculateApp();
+            },
+
+            createProject(isInitial = false) {
+                const newProject = {
+                    id: generateId(),
+                    name: isInitial ? "Default Project" : "New Project " + (this.data.projects.length + 1),
+                    client: "", projectNo: "", location: "", date: new Date().toISOString().split('T')[0], notes: "",
+                    consultant: "", contractor: "", drawingNo: "", revision: "0", designer: "", checker: "",
+                    levels: [
+                        { id: generateId(), inputs: { from_level_name: "Basement 1", from_elevation: -3000, to_level_name: "Ground Floor", to_elevation: 0, main_rise: 3000, main_run: 30000, main_grad: 10, btm_en: true, btm_standard: 'dubai', top_en: true, top_standard: 'dubai' } }
+                    ]
+                };
+                this.data.projects.push(newProject);
+                this.data.activeProjectId = newProject.id;
+                this.data.activeLevelId = newProject.levels[0].id;
+                this.saveToStorage();
+                
+                this.renderProjectList();
+                this.populateProjectForm();
+                
+                if(!isInitial) this.loadLevelData(this.data.activeLevelId);
+            },
+            
+            duplicateProject() {
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(!project) return;
+                const duplicated = JSON.parse(JSON.stringify(project));
+                duplicated.id = generateId();
+                duplicated.name = project.name + " (Copy)";
+                duplicated.levels.forEach(l => l.id = generateId());
+                this.data.projects.push(duplicated);
+                this.data.activeProjectId = duplicated.id;
+                this.data.activeLevelId = duplicated.levels[0].id;
+                this.saveToStorage();
+                this.renderProjectList();
+                this.populateProjectForm();
+                this.loadLevelData(this.data.activeLevelId);
+            },
+
+            deleteProject() {
+                if(this.data.projects.length <= 1) return alert("Cannot delete the last remaining project.");
+                if(confirm("Are you sure you want to delete this project? This cannot be undone.")) {
+                    this.data.projects = this.data.projects.filter(p => p.id !== this.data.activeProjectId);
+                    this.data.activeProjectId = this.data.projects[0].id;
+                    this.data.activeLevelId = this.data.projects[0].levels[0].id;
+                    this.saveToStorage();
+                    this.renderProjectList();
+                    this.populateProjectForm();
+                    this.loadLevelData(this.data.activeLevelId);
+                }
+            },
+
+            openManager() {
+                this.saveCurrentLevelDOM();
+                this.renderProjectList();
+                this.populateProjectForm();
+                document.getElementById('pmModal').classList.add('active');
+            },
+            
+            closeManager() {
+                document.getElementById('pmModal').classList.remove('active');
+            },
+            
+            renderProjectList() {
+                const container = document.getElementById('pmListContainer');
+                if(!container) return;
+                const searchTerm = (document.getElementById('pmSearch')?.value || '').toLowerCase();
+                container.innerHTML = '';
+                
+                this.data.projects.forEach(p => {
+                    if (searchTerm && !p.name.toLowerCase().includes(searchTerm)) return;
+                    const div = document.createElement('div');
+                    div.className = `project-item ${p.id === this.data.activeProjectId ? 'active' : ''}`;
+                    div.onclick = () => {
+                        this.data.activeProjectId = p.id;
+                        this.saveToStorage();
+                        this.renderProjectList();
+                        this.populateProjectForm();
+                    };
+                    div.innerHTML = `
+                        <div class="project-item-title">${p.name || 'Unnamed Project'}</div>
+                        <div class="project-item-date">${p.levels.length} Ramp(s) • Rev ${p.revision || 0}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            },
+            
+            populateProjectForm() {
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(!project) return;
+                const form = document.getElementById('pmForm');
+                if(!form) return;
+                Object.keys(project).forEach(key => {
+                    if(key !== 'id' && key !== 'levels') {
+                        if(form.elements[key]) form.elements[key].value = project[key];
+                    }
+                });
+            },
+            
+            saveProjectMetadata() {
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(!project) return;
+                const form = document.getElementById('pmForm');
+                const formData = new FormData(form);
+                for(let [key, value] of formData.entries()) {
+                    project[key] = value;
+                }
+                this.saveToStorage();
+                this.renderProjectList(); 
+            },
+
+            loadActiveProject() {
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(project) {
+                    this.data.activeLevelId = project.levels[0].id;
+                    this.loadLevelData(this.data.activeLevelId);
+                }
+                this.closeManager();
+            },
+
+            // Level Sidebar
+            toggleLevelSidebar() {
+                const sidebar = document.getElementById('levelSidebar');
+                sidebar.classList.toggle('open');
+                if(sidebar.classList.contains('open')) {
+                    this.saveCurrentLevelDOM();
+                    this.renderLevelList();
+                }
+            },
+            
+            renderLevelList() {
+                const container = document.getElementById('levelListContainer');
+                if(!container) return;
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(!project) return;
+                
+                container.innerHTML = '';
+                
+                project.levels.forEach((l, index) => {
+                    const fName = l.inputs?.from_level_name || `L${index}`;
+                    const tName = l.inputs?.to_level_name || `L${index+1}`;
+                    const title = `${fName} → ${tName}`;
+                    const rise = l.inputs?.main_rise || '?';
+                    const grad = l.inputs?.main_grad || '?';
+                    
+                    const div = document.createElement('div');
+                    div.className = `level-card ${l.id === this.data.activeLevelId ? 'active' : ''}`;
+                    div.innerHTML = `
+                        <div class="level-card-header">
+                            <div class="level-card-title" onclick="pm.switchLevel('${l.id}')">${title}</div>
+                            <div class="level-card-actions">
+                                <button class="level-card-btn" title="Edit" onclick="event.stopPropagation(); pm.editLevel('${l.id}')">✏️</button>
+                                <button class="level-card-btn" title="Move Up" onclick="event.stopPropagation(); pm.reorderLevel('${l.id}', -1)">↑</button>
+                                <button class="level-card-btn" title="Move Down" onclick="event.stopPropagation(); pm.reorderLevel('${l.id}', 1)">↓</button>
+                                <button class="level-card-btn" title="Duplicate" onclick="event.stopPropagation(); pm.duplicateLevel('${l.id}')">📋</button>
+                                <button class="level-card-btn" title="Delete" onclick="event.stopPropagation(); pm.deleteLevel('${l.id}')">🗑</button>
+                            </div>
+                        </div>
+                        <div class="level-card-meta" onclick="pm.switchLevel('${l.id}')">
+                            <span>Rise: ${rise}mm</span>
+                            <span>Gradient: 1:${grad}</span>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            },
+            
+            switchLevel(levelId) {
+                this.saveCurrentLevelDOM();
+                this.loadLevelData(levelId);
+            },
+            
+            addLevel() {
+                this.saveCurrentLevelDOM();
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(!project) return;
+                const newLevel = {
+                    id: generateId(),
+                    inputs: { from_level_name: "", from_elevation: 0, to_level_name: "", to_elevation: 3000, main_rise: 3000, main_run: 30000, main_grad: 10, btm_en: true, btm_standard: 'dubai', top_en: true, top_standard: 'dubai' }
+                };
+                project.levels.push(newLevel);
+                this.saveToStorage();
+                this.switchLevel(newLevel.id);
+            },
+            
+            duplicateLevel(levelId) {
+                this.saveCurrentLevelDOM();
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                const levelIndex = project.levels.findIndex(l => l.id === levelId);
+                if(levelIndex === -1) return;
+                const duplicated = JSON.parse(JSON.stringify(project.levels[levelIndex]));
+                duplicated.id = generateId();
+                project.levels.splice(levelIndex + 1, 0, duplicated);
+                this.saveToStorage();
+                this.renderLevelList();
+            },
+            
+            deleteLevel(levelId) {
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(!project || project.levels.length <= 1) return alert("A project must have at least one ramp design.");
+                if(confirm("Delete this ramp design?")) {
+                    project.levels = project.levels.filter(l => l.id !== levelId);
+                    if(this.data.activeLevelId === levelId) {
+                        this.switchLevel(project.levels[0].id);
+                    } else {
+                        this.saveToStorage();
+                        this.renderLevelList();
+                    }
+                }
+            },
+            
+            reorderLevel(levelId, direction) {
+                this.saveCurrentLevelDOM();
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                const index = project.levels.findIndex(l => l.id === levelId);
+                if (index < 0) return;
+                const newIndex = index + direction;
+                if (newIndex >= 0 && newIndex < project.levels.length) {
+                    const temp = project.levels[index];
+                    project.levels[index] = project.levels[newIndex];
+                    project.levels[newIndex] = temp;
+                    this.saveToStorage();
+                    this.renderLevelList();
+                }
+            },
+
+            // Edit Level Feature
+            editLevel(levelId) {
+                this.saveCurrentLevelDOM();
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if (!project) return;
+                const level = project.levels.find(l => l.id === levelId);
+                if (!level) return;
+                
+                document.getElementById('edit_level_id').value = level.id;
+                document.getElementById('edit_from_name').value = level.inputs.from_level_name || '';
+                document.getElementById('edit_from_elev').value = level.inputs.from_elevation !== undefined ? level.inputs.from_elevation : 0;
+                document.getElementById('edit_to_name').value = level.inputs.to_level_name || '';
+                document.getElementById('edit_to_elev').value = level.inputs.to_elevation !== undefined ? level.inputs.to_elevation : 0;
+                
+                document.getElementById('editLevelModal').classList.add('active');
+            },
+            
+            closeEditLevelModal() {
+                document.getElementById('editLevelModal').classList.remove('active');
+            },
+            
+            saveEditedLevel() {
+                const levelId = document.getElementById('edit_level_id').value;
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if (!project) return;
+                const level = project.levels.find(l => l.id === levelId);
+                if (!level) return;
+                
+                const fName = document.getElementById('edit_from_name').value;
+                const fElev = parseFloat(document.getElementById('edit_from_elev').value) || 0;
+                const tName = document.getElementById('edit_to_name').value;
+                const tElev = parseFloat(document.getElementById('edit_to_elev').value) || 0;
+                
+                level.inputs.from_level_name = fName;
+                level.inputs.from_elevation = fElev;
+                level.inputs.to_level_name = tName;
+                level.inputs.to_elevation = tElev;
+                
+                // Automatically calculate Total Vertical Rise based on new elevations
+                level.inputs.main_rise = Math.abs(tElev - fElev);
+                
+                this.saveToStorage();
+                this.closeEditLevelModal();
+                this.renderLevelList();
+                
+                if (level.id === this.data.activeLevelId) {
+                    this.loadLevelData(level.id);
+                }
+            },
+
+            // New Feature: View All Levels Elevation Diagram
+            viewAllLevelsDiagram() {
+                this.saveCurrentLevelDOM();
+                const project = this.data.projects.find(p => p.id === this.data.activeProjectId);
+                if(!project) return;
+                
+                // Collect unique elevations
+                let elevationsMap = new Map();
+                let ramps = [];
+                
+                project.levels.forEach(l => {
+                    const fName = l.inputs?.from_level_name || 'Unknown';
+                    const fElev = parseFloat(l.inputs?.from_elevation) || 0;
+                    const tName = l.inputs?.to_level_name || 'Unknown';
+                    const tElev = parseFloat(l.inputs?.to_elevation) || 0;
+                    
+                    elevationsMap.set(fElev, fName);
+                    elevationsMap.set(tElev, tName);
+                    
+                    ramps.push({ fName, fElev, tName, tElev, grad: l.inputs?.main_grad || 10 });
+                });
+                
+                // Sort descending
+                const sortedElevs = Array.from(elevationsMap.keys()).sort((a,b) => b - a);
+                
+                if(sortedElevs.length < 2) {
+                    alert("Not enough elevation data across ramps to draw building diagram.");
+                    return;
+                }
+                
+                const maxElev = sortedElevs[0];
+                const minElev = sortedElevs[sortedElevs.length - 1];
+                const totalDiff = maxElev - minElev || 1000;
+                
+                const vw = 800;
+                const vh = 1000;
+                const paddingY = 100;
+                const drawH = vh - (paddingY * 2);
+                
+                const scaleY = drawH / totalDiff;
+                
+                let svg = `<svg viewBox="0 0 ${vw} ${vh}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">`;
+                svg += `<text x="${vw/2}" y="40" font-family="Inter, sans-serif" font-weight="800" font-size="24" fill="#f8fafc" text-anchor="middle">BUILDING ELEVATION DIAGRAM</text>`;
+                svg += `<text x="${vw/2}" y="65" font-family="monospace" font-size="14" fill="#cbd5e1" text-anchor="middle">Project: ${project.name}</text>`;
+                
+                // Draw floor lines
+                sortedElevs.forEach(elev => {
+                    const name = elevationsMap.get(elev);
+                    const y = paddingY + ((maxElev - elev) * scaleY);
+                    
+                    // Floor Line
+                    svg += `<line x1="150" y1="${y}" x2="${vw - 150}" y2="${y}" stroke="#475569" stroke-width="2" stroke-dasharray="8,4"/>`;
+                    
+                    // Labels
+                    svg += `<text x="130" y="${y+5}" font-family="Inter, sans-serif" font-weight="700" font-size="16" fill="#f8fafc" text-anchor="end">${name}</text>`;
+                    svg += `<text x="${vw - 130}" y="${y+5}" font-family="monospace" font-weight="600" font-size="16" fill="#38bdf8" text-anchor="start">EL ${elev}</text>`;
+                });
+                
+                // Draw connecting ramps
+                ramps.forEach((r, i) => {
+                    const y1 = paddingY + ((maxElev - r.fElev) * scaleY);
+                    const y2 = paddingY + ((maxElev - r.tElev) * scaleY);
+                    
+                    // alternate x positions to prevent overlap
+                    const xOffset = 250 + ((i % 3) * 100); 
+                    
+                    // Draw diagonal ramp representation
+                    svg += `<line x1="${xOffset}" y1="${y1}" x2="${xOffset + 100}" y2="${y2}" stroke="#10b981" stroke-width="6" stroke-linecap="round" opacity="0.8"/>`;
+                    
+                    // Node dots
+                    svg += `<circle cx="${xOffset}" cy="${y1}" r="5" fill="#f8fafc"/>`;
+                    svg += `<circle cx="${xOffset+100}" cy="${y2}" r="5" fill="#f8fafc"/>`;
+                    
+                    // Ramp text
+                    const midX = xOffset + 50;
+                    const midY = (y1 + y2) / 2;
+                    svg += `<rect x="${midX - 45}" y="${midY - 12}" width="90" height="24" fill="rgba(15,23,42,0.9)" rx="4"/>`;
+                    svg += `<text x="${midX}" y="${midY + 4}" font-family="monospace" font-size="12" font-weight="700" fill="#10b981" text-anchor="middle">1:${r.grad}</text>`;
+                });
+
+                svg += `</svg>`;
+                
+                document.getElementById('allLevelsContent').innerHTML = svg;
+                document.getElementById('allLevelsOverlay').style.display = 'flex';
+                setTimeout(() => document.getElementById('allLevelsOverlay').style.opacity = '1', 10);
+            },
+            
+            closeAllLevelsDiagram() {
+                const overlay = document.getElementById('allLevelsOverlay');
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+            }
+        };
+
+        // ----------------------------------------------------
+        // FULL PDF EXPORT LOGIC
+        // ----------------------------------------------------
+        window.pdf = {
+            openExportModal() {
+                if(window.pm) pm.saveCurrentLevelDOM();
+                document.getElementById('pdfModal').classList.add('active');
+            },
+            closeExportModal() {
+                document.getElementById('pdfModal').classList.remove('active');
+            },
+            
+            async generateReport() {
+                this.closeExportModal();
+                showLoader("Loading PDF Modules...");
+                
+                try {
+                    // Robust loading of jsPDF and dependencies
+                    if (!window.jspdf) {
+                        await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+                    }
+                    if (!window.jspdf.jsPDF.API.autoTable) {
+                        await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js");
+                    }
+                    // SVG2PDF is critical for embedding the CAD graphic natively
+                    if (!window.svg2pdf) {
+                        await loadScript("https://cdnjs.cloudflare.com/ajax/libs/svg2pdf.js/2.2.3/svg2pdf.umd.min.js");
+                    }
+
+                    showLoader("Compiling Engineering Report...");
+                    
+                    const scope = document.getElementById('pdfScope').value;
+                    const project = pm.data.projects.find(p => p.id === pm.data.activeProjectId);
+                    const originalLevelId = pm.data.activeLevelId;
+                    
+                    let levelsToExport = [];
+                    if (scope === 'current') {
+                        levelsToExport.push(project.levels.find(l => l.id === originalLevelId));
+                    } else {
+                        levelsToExport = project.levels;
+                    }
+
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+                    const pw = doc.internal.pageSize.width;
+                    const ph = doc.internal.pageSize.height;
+                    
+                    const colors = { primary: [0, 86, 179], text: [30, 41, 59], secondary: [100, 116, 139], line: [226, 232, 240] };
+                    let pageNum = 1;
+
+                    // Helper Functions
+                    const drawHeader = (doc, title, subtitle) => {
+                        doc.setFillColor(...colors.primary);
+                        doc.rect(0, 0, pw, 25, 'F');
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+                        doc.text("ARYAN RAMP DESIGN CALCULATOR", 15, 12);
+                        doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+                        doc.text("Engineering Submittal Report", 15, 18);
+                        
+                        doc.setTextColor(...colors.text);
+                        doc.setFontSize(18); doc.setFont("helvetica", "bold");
+                        doc.text(title, 15, 40);
+                        if(subtitle) {
+                            doc.setFontSize(11); doc.setFont("helvetica", "normal"); doc.setTextColor(...colors.secondary);
+                            doc.text(subtitle, 15, 48);
+                        }
+                    };
+
+                    const drawFooter = (doc) => {
+                        doc.setDrawColor(...colors.line);
+                        doc.line(15, ph - 15, pw - 15, ph - 15);
+                        doc.setFontSize(8); doc.setTextColor(...colors.secondary);
+                        doc.text(`Project: ${project.name || 'Untitled'} | Date: ${new Date().toLocaleDateString()}`, 15, ph - 10);
+                        doc.text(`Page ${pageNum++}`, pw - 25, ph - 10);
+                    };
+
+                    // --- 1. COVER PAGE (Project Scope) ---
+                    if (scope === 'project') {
+                        drawHeader(doc, "PROJECT ENGINEERING REPORT", "Comprehensive Ramp Calculation Submittal");
+                        
+                        doc.autoTable({
+                            startY: 60,
+                            head: [['Project Information', 'Details']],
+                            body: [
+                                ['Project Name', project.name],
+                                ['Project Number', project.projectNo || 'N/A'],
+                                ['Client', project.client || 'N/A'],
+                                ['Location', project.location || 'N/A'],
+                                ['Consultant', project.consultant || 'N/A'],
+                                ['Contractor', project.contractor || 'N/A'],
+                                ['Drawing Number', project.drawingNo || 'N/A'],
+                                ['Designer', project.designer || 'N/A'],
+                                ['Revision', project.revision || '0'],
+                                ['Date', project.date || 'N/A']
+                            ],
+                            theme: 'grid',
+                            headStyles: { fillColor: colors.primary, textColor: 255, fontStyle: 'bold' },
+                            styles: { font: 'helvetica', fontSize: 10, cellPadding: 6 },
+                            columnStyles: { 0: { fontStyle: 'bold', fillColor: [248, 250, 252], width: 70 } }
+                        });
+                        
+                        doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(...colors.text);
+                        doc.text("Project Summary", 15, doc.lastAutoTable.finalY + 15);
+                        doc.autoTable({
+                            startY: doc.lastAutoTable.finalY + 20,
+                            body: [
+                                ['Total Number of Ramp Routes', levelsToExport.length.toString()],
+                                ['Engineering System', 'Metric (mm, m, degrees)']
+                            ],
+                            theme: 'plain',
+                            styles: { fontSize: 10, cellPadding: 4, textColor: colors.secondary },
+                            columnStyles: { 0: { fontStyle: 'bold', textColor: colors.text, width: 80 } }
+                        });
+                        
+                        if (project.notes) {
+                            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(...colors.text);
+                            doc.text("Project Notes", 15, doc.lastAutoTable.finalY + 15);
+                            doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(...colors.secondary);
+                            const splitNotes = doc.splitTextToSize(project.notes, pw - 30);
+                            doc.text(splitNotes, 15, doc.lastAutoTable.finalY + 22);
+                        }
+                        
+                        drawFooter(doc);
+                    }
+
+                    // --- 2. LOOP LEVELS ---
+                    for (let i = 0; i < levelsToExport.length; i++) {
+                        const lvl = levelsToExport[i];
+                        showLoader(`Processing Ramp Design ${i+1} of ${levelsToExport.length}...`);
+                        
+                        // Load data into DOM to force calculations and chart regeneration
+                        await pm.loadLevelData(lvl.id);
+                        await new Promise(r => setTimeout(r, 400)); // allow rendering
+                        
+                        if (pageNum > 1) doc.addPage();
+                        
+                        const fName = document.getElementById('from_level_name').value || 'Start';
+                        const tName = document.getElementById('to_level_name').value || 'End';
+                        
+                        drawHeader(doc, `RAMP DESIGN: ${fName} to ${tName}`, `Geometric Data & Transition Calculations`);
+                        
+                        // Read DOM outputs
+                        const mRise = document.getElementById('main_rise').value;
+                        const mRun = document.getElementById('main_run').value;
+                        const mGrad = document.getElementById('main_grad').value;
+                        const mPct = document.getElementById('main_pct').value;
+                        
+                        const bG = document.getElementById('btm_grade_val').textContent;
+                        const bL = document.getElementById('btm_len_val').textContent;
+                        const bRise = document.getElementById('btm_rise_val').textContent;
+                        const bRun = document.getElementById('btm_run_val').textContent;
+                        
+                        const tG = document.getElementById('top_grade_val').textContent;
+                        const tL = document.getElementById('top_len_val').textContent;
+                        const tRise = document.getElementById('top_rise_val').textContent;
+                        const tRun = document.getElementById('top_run_val').textContent;
+                        
+                        const eRise = document.getElementById('eff_rise').textContent;
+                        const eRun = document.getElementById('eff_run').textContent;
+                        const totL = document.getElementById('tot_t_len').textContent;
+                        
+                        doc.autoTable({
+                            startY: 60,
+                            head: [['Parameter', 'Target Design', 'Calculated Geometry', 'Value']],
+                            body: [
+                                ['Total Vertical Rise', `${mRise} mm`, 'Effective Ramp Rise', `${eRise} mm`],
+                                ['Total Horizontal Proj.', `${mRun} mm`, 'Effective Horiz. Proj.', `${eRun} mm`],
+                                ['Target Gradient', `1:${mGrad}`, 'Total Transition Length', `${totL} m`],
+                                ['Target Slope', `${mPct}%`, 'Overall Status', 'Valid']
+                            ],
+                            theme: 'grid',
+                            headStyles: { fillColor: colors.primary, textColor: 255 },
+                            styles: { font: 'helvetica', fontSize: 9, cellPadding: 5 },
+                            columnStyles: { 0: { fontStyle: 'bold', fillColor: [248, 250, 252] }, 2: { fontStyle: 'bold', fillColor: [248, 250, 252] } }
+                        });
+                        
+                        doc.autoTable({
+                            startY: doc.lastAutoTable.finalY + 10,
+                            head: [['Zone', 'Standard', 'Grade (%)', 'Length (m)', 'Rise (mm)', 'Run (mm)']],
+                            body: [
+                                ['Bottom Transition', document.getElementById('btm_standard').options[document.getElementById('btm_standard').selectedIndex].text, bG, bL, bRise, bRun],
+                                ['Top Transition', document.getElementById('top_standard').options[document.getElementById('top_standard').selectedIndex].text, tG, tL, tRise, tRun]
+                            ],
+                            theme: 'grid',
+                            headStyles: { fillColor: [100, 116, 139], textColor: 255 },
+                            styles: { font: 'helvetica', fontSize: 9, cellPadding: 5 }
+                        });
+                        
+                        let curY = doc.lastAutoTable.finalY + 15;
+                        
+                        const lNotes = document.getElementById('level_notes')?.value;
+                        if(lNotes) {
+                            doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(...colors.text);
+                            doc.text("Engineering Notes", 15, curY);
+                            doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(...colors.secondary);
+                            const splitNotes = doc.splitTextToSize(lNotes, pw - 30);
+                            doc.text(splitNotes, 15, curY + 6);
+                            curY += 10 + (splitNotes.length * 4);
+                        }
+
+                        // Embed the dynamic CAD SVG
+                        doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(...colors.text);
+                        doc.text("Longitudinal Profile & Plan View", 15, curY + 10);
+                        
+                        if (window.lastGeneratedSVG) {
+                            try {
+                                // Create a hidden DOM element for svg2pdf parsing
+                                const parser = new DOMParser();
+                                const svgDoc = parser.parseFromString(window.lastGeneratedSVG, "image/svg+xml");
+                                const svgEl = svgDoc.documentElement;
+                                // Force pixel dimensions to prevent 100% bugs in svg2pdf
+                                svgEl.setAttribute("width", "1200px");
+                                svgEl.setAttribute("height", "800px");
+                                
+                                // Embed via svg2pdf
+                                await window.svg2pdf(svgEl, doc, {
+                                    x: 15,
+                                    y: curY + 15,
+                                    width: pw - 30,
+                                    height: ((pw - 30) / 1200) * 800 // Maintain aspect ratio
+                                });
+                            } catch (e) {
+                                console.error("SVG PDF Generation Error: ", e);
+                                doc.setFontSize(10); doc.setTextColor(255,0,0);
+                                doc.text("Graphic rendering error. Please check browser console.", 15, curY + 20);
+                            }
+                        }
+
+                        drawFooter(doc);
+                    }
+
+                    // Restore originally active level
+                    await pm.loadLevelData(originalLevelId);
+                    
+                    const fName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    doc.save(`Engineering_Report_${fName}.pdf`);
+                    hideLoader();
+                    
+                } catch (error) {
+                    console.error(error);
+                    hideLoader();
+                    alert("An error occurred generating the PDF. Please check the console log.");
+                }
+            }
+        };
+
+    </script>
+    <!-- ═══════════════════ 3D ENGINE · vendored Three.js (lib/three) with CDN fallback ═══════════════════ -->
+    <!-- import map is only used by the CDN fallback path (page opened from file://) -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module">
+// ═══════════════════════════════════════════════════════════════════════════
+//  ARYAN RAMP DESIGN — 3D INTERACTIVE ENGINE
+//  Three.js · PBR materials · ACES tone mapping · UnrealBloom · live parametrics
+//  Live-linked to the calculator: every input change rebuilds the model.
+// ═══════════════════════════════════════════════════════════════════════════
+(async () => {
+    'use strict';
+
+    const $ = (id) => document.getElementById(id);
+    const stage = $('r3d_stage');
+    const wrap = $('r3d_canvas_wrap');
+    const loadingEl = $('r3d_loading');
+    const msgEl = $('r3d_msg');
+    const card3d = $('card_3d');
+    if (!stage || !wrap || !loadingEl || !msgEl || !card3d) return;
+
+    // Early stub so the calculator can safely push data before the engine is ready
+    window.Ramp3D = { ready: false, setData: (d) => { window.__lastRamp3DData = d; } };
+
+    let THREE, OrbitControls, RoomEnvironment, EffectComposer, RenderPass, UnrealBloomPass, OutputPass;
+    try {
+        let ADDONS;
+        try {
+            // 1st choice: locally vendored engine — fast and fully offline (http/https)
+            THREE = await import('./lib/three/three.module.min.js');
+            ADDONS = './lib/three/addons/';
+        } catch (eLocal) {
+            // Fallback: CDN — used when the page is opened directly from disk (file://),
+            // where browsers block local ES-module fetches
+            THREE = await import('three');
+            ADDONS = 'three/addons/';
+        }
+        ({ OrbitControls } = await import(ADDONS + 'controls/OrbitControls.js'));
+        ({ RoomEnvironment } = await import(ADDONS + 'environments/RoomEnvironment.js'));
+        ({ EffectComposer } = await import(ADDONS + 'postprocessing/EffectComposer.js'));
+        ({ RenderPass } = await import(ADDONS + 'postprocessing/RenderPass.js'));
+        ({ UnrealBloomPass } = await import(ADDONS + 'postprocessing/UnrealBloomPass.js'));
+        ({ OutputPass } = await import(ADDONS + 'postprocessing/OutputPass.js'));
+    } catch (err) {
+        console.error('[Ramp3D] engine dependency failed:', err);
+        loadingEl.innerHTML = '<div style="text-align:center;color:#fbbf24;font-size:.9rem;max-width:460px;line-height:1.7;padding:0 20px;">⚠️ <strong>3D engine failed to load</strong> — neither the bundled engine nor the CDN could be initialized.<br>Check the browser console for details. The calculator itself remains fully functional.</div>';
+        loadingEl.style.background = 'rgba(11,21,38,.97)';
+        return;
+    }
+
+    /* ════════════════════════ RENDERER / SCENE / CAMERA ════════════════════════ */
+    let renderer;
+    try {
+        renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
+    } catch (e) {
+        loadingEl.innerHTML = '<div style="color:#fbbf24;">⚠️ WebGL is unavailable in this browser.</div>';
+        loadingEl.style.background = 'rgba(11,21,38,.97)';
+        return;
+    }
+    const W0 = wrap.clientWidth || 960, H0 = wrap.clientHeight || 620;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(W0, H0);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
+    wrap.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0a1526, 90, 480);
+
+    const camera = new THREE.PerspectiveCamera(46, W0 / H0, 0.1, 1800);
+    camera.position.set(60, 34, 80);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.maxPolarAngle = Math.PI * 0.495;
+    controls.minDistance = 4;
+    controls.maxDistance = 520;
+    controls.autoRotate = false;   // enabled after intro flight
+    controls.autoRotateSpeed = 0.85;
+    controls.target.set(14, 3, 0);
+
+    // PBR environment reflections
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.06).texture;
+
+    /* ════════════════════════ SKY DOME + STARS ════════════════════════ */
+    const sky = new THREE.Mesh(
+        new THREE.SphereGeometry(760, 32, 16),
+        new THREE.ShaderMaterial({
+            side: THREE.BackSide, depthWrite: false, fog: false,
+            uniforms: {
+                cTop:  { value: new THREE.Color(0x040711) },
+                cMid:  { value: new THREE.Color(0x0d1c36) },
+                cHor:  { value: new THREE.Color(0x1d3a5f) },
+                cGlow: { value: new THREE.Color(0x2f6ea6) }
+            },
+            vertexShader: 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+            fragmentShader: [
+                'varying vec3 vP;',
+                'uniform vec3 cTop, cMid, cHor, cGlow;',
+                'void main(){',
+                '  float h = normalize(vP).y;',
+                '  vec3 col = mix(cHor, cMid, smoothstep(0.0, 0.20, h));',
+                '  col = mix(col, cTop, smoothstep(0.16, 0.62, h));',
+                '  col += cGlow * pow(max(0.0, 1.0 - abs(h - 0.015) * 5.5), 3.0) * 0.5;',
+                '  gl_FragColor = vec4(col, 1.0);',
+                '}'
+            ].join('\n')
+        })
+    );
+    scene.add(sky);
+
+    {   // star field (upper hemisphere)
+        const N = 550, pos = new Float32Array(N * 3);
+        for (let i = 0; i < N; i++) {
+            const th = Math.random() * Math.PI * 2;
+            const ph = Math.acos(0.12 + Math.random() * 0.88);
+            const r = 720;
+            pos[i * 3]     = r * Math.sin(ph) * Math.cos(th);
+            pos[i * 3 + 1] = r * Math.cos(ph);
+            pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+        }
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        scene.add(new THREE.Points(g, new THREE.PointsMaterial({
+            color: 0xcfe4ff, size: 1.7, sizeAttenuation: false,
+            transparent: true, opacity: 0.8, depthWrite: false, fog: false
+        })));
+    }
+
+    /* ════════════════════════ LIGHTS ════════════════════════ */
+    scene.add(new THREE.HemisphereLight(0x8fc5ff, 0x0c1424, 0.55));
+    const sun = new THREE.DirectionalLight(0xffe2b0, 2.6);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.bias = -0.0004;
+    sun.shadow.normalBias = 0.03;
+    scene.add(sun); scene.add(sun.target);
+
+    // model-space grid
+    const grid = new THREE.GridHelper(600, 120, 0x2a4a72, 0x152640);
+    grid.position.y = -0.06;
+    grid.material.transparent = true;
+    grid.material.opacity = 0.5;
+    scene.add(grid);
+
+    /* ════════════════════════ POST-PROCESSING (BLOOM) ════════════════════════ */
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(W0, H0), 0.42, 0.55, 0.85);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+
+    /* ════════════════════════ SHARED MATERIALS & HELPERS ════════════════════════ */
+    function noiseTexture(base, variance, rx, ry) {
+        const c = document.createElement('canvas'); c.width = c.height = 256;
+        const x = c.getContext('2d');
+        x.fillStyle = `rgb(${base[0]},${base[1]},${base[2]})`;
+        x.fillRect(0, 0, 256, 256);
+        for (let i = 0; i < 2600; i++) {
+            const v = ((Math.random() - 0.5) * 2 * variance) | 0;
+            x.fillStyle = `rgba(${base[0] + v},${base[1] + v},${base[2] + v},${0.4 + Math.random() * 0.6})`;
+            x.fillRect(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 2, 1 + Math.random() * 2);
+        }
+        const t = new THREE.CanvasTexture(c);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.repeat.set(rx, ry);
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+    }
+
+    const MAT = {
+        deck:     new THREE.MeshStandardMaterial({ map: noiseTexture([156, 166, 180], 14, 0.45, 0.45), roughness: 0.88, metalness: 0, envMapIntensity: 0.45 }),
+        concrete: new THREE.MeshStandardMaterial({ color: 0xaeb9c6, roughness: 0.9, metalness: 0, envMapIntensity: 0.35 }),
+        asphalt:  new THREE.MeshStandardMaterial({ map: noiseTexture([45, 53, 67], 12, 3, 3), roughness: 0.96, metalness: 0, envMapIntensity: 0.25 }),
+        kerb:     new THREE.MeshStandardMaterial({ color: 0xc7d0da, roughness: 0.8, metalness: 0, envMapIntensity: 0.4 }),
+        steel:    new THREE.MeshStandardMaterial({ color: 0xd9e2ec, roughness: 0.28, metalness: 0.92, envMapIntensity: 1.1 }),
+        lineWhite:new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.55, emissive: 0x64748b, emissiveIntensity: 0.22, side: THREE.DoubleSide }),
+        led:      new THREE.MeshStandardMaterial({ color: 0x0b2733, emissive: 0x22d3ee, emissiveIntensity: 2.6, roughness: 0.4 }),
+        glass:    new THREE.MeshPhysicalMaterial({ color: 0x0a1220, roughness: 0.12, metalness: 0.1, envMapIntensity: 1.2 }),
+        head:     new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff3d6, emissiveIntensity: 5.5, roughness: 0.3 }),
+        tail:     new THREE.MeshStandardMaterial({ color: 0x330505, emissive: 0xff2d2d, emissiveIntensity: 3.4, roughness: 0.4 }),
+        tyre:     new THREE.MeshStandardMaterial({ color: 0x14181f, roughness: 0.92, metalness: 0.05 }),
+        rim:      new THREE.MeshStandardMaterial({ color: 0xb8c4d4, roughness: 0.3, metalness: 0.85 }),
+        dim:      new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.9 })
+    };
+
+    const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
+    const fmtMM = (v) => Math.round(v).toLocaleString('en-US');
+
+    // per-rebuild disposable registry (geometries / label textures / sprite materials)
+    let disposables = [];
+    const track = (d) => { disposables.push(d); return d; };
+    function box(w, h, d, mat) {
+        const m = new THREE.Mesh(track(new THREE.BoxGeometry(w, h, d)), mat);
+        m.castShadow = true; m.receiveShadow = true;
+        return m;
+    }
+
+    function roundRectPath(x, a, b, w, h, r) {
+        x.beginPath();
+        x.moveTo(a + r, b);
+        x.arcTo(a + w, b, a + w, b + h, r);
+        x.arcTo(a + w, b + h, a, b + h, r);
+        x.arcTo(a, b + h, a, b, r);
+        x.arcTo(a, b, a + w, b, r);
+        x.closePath();
+    }
+
+    // floating annotation sprite (glass chip + text lines)
+    function label(lines, opts = {}) {
+        const wPx = 768, hPx = 256;
+        const c = document.createElement('canvas'); c.width = wPx; c.height = hPx;
+        const x = c.getContext('2d');
+        x.fillStyle = 'rgba(7, 15, 30, 0.87)';
+        x.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+        x.lineWidth = 3;
+        roundRectPath(x, 6, 6, wPx - 12, hPx - 12, 26);
+        x.fill(); x.stroke();
+        x.textAlign = 'center';
+        const sizes  = opts.sizes  || [56, 42, 36];
+        const colors = opts.colors || ['#7dd3fc', '#eef4ff', '#9fb4d0'];
+        const lh = [66, 54, 48];
+        const n = Math.min(lines.length, 3);
+        let totalH = 0;
+        for (let i = 0; i < n; i++) totalH += lh[i];
+        let y = (hPx - totalH) / 2 + 6;
+        for (let i = 0; i < n; i++) {
+            x.font = `800 ${sizes[i]}px Inter, 'Segoe UI', Arial, sans-serif`;
+            x.fillStyle = colors[i];
+            x.fillText(lines[i], wPx / 2, y + sizes[i]);
+            y += lh[i];
+        }
+        const tex = track(new THREE.CanvasTexture(c));
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = 4;
+        const mat = track(new THREE.SpriteMaterial({ map: tex, transparent: true }));
+        const s = new THREE.Sprite(mat);
+        const hWorld = opts.h || 1.35;
+        s.scale.set(hWorld * (wPx / hPx), hWorld, 1);
+        return s;
+    }
+
+    /* ════════════════════════ MODEL CONSTANTS ════════════════════════ */
+    const RW = 7.6;      // ramp carriageway width (m)
+    const SLAB = 16;     // approach slab length at each level (m)
+    const TH = 0.42;     // structural deck thickness (m)
+    const LANE = 1.95;   // lane offset from centreline (m)
+
+    // chevron (direction-of-travel) shape, points up-slope (+X)
+    const chevShape = new THREE.Shape();
+    chevShape.moveTo(0, 0.55); chevShape.lineTo(1.05, 0);
+    chevShape.lineTo(0, -0.55); chevShape.lineTo(0.34, -0.55);
+    chevShape.lineTo(1.39, 0); chevShape.lineTo(0.34, 0.55);
+    chevShape.closePath();
+
+    /* ════════════════════════ STATE ════════════════════════ */
+    let model = null;            // { group, dimGroup, segs, totalRun, totalRise }
+    let path = null;             // sampled centreline path for the cars
+    let dimsVisible = true;
+    let driveOn = true;
+    let firstFitDone = false;
+    let pendingCapture = false;
+    let rebuildFlash = 0;
+    let camTween = null;
+
+    const carsGroup = new THREE.Group();
+    scene.add(carsGroup);
+
+    /* ════════════════════════ CARS (persistent) ════════════════════════ */
+    function makeCar(paintHex) {
+        const g = new THREE.Group();
+        const paint = new THREE.MeshPhysicalMaterial({
+            color: paintHex, metalness: 0.72, roughness: 0.3,
+            clearcoat: 1.0, clearcoatRoughness: 0.16, envMapIntensity: 1.2
+        });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(4.35, 0.56, 1.88), paint);
+        body.position.y = 0.62; body.castShadow = true; g.add(body);
+        const nose = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.34, 1.7), paint);
+        nose.position.set(2.32, 0.48, 0); nose.castShadow = true; g.add(nose);
+        const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.5, 1.58), MAT.glass);
+        cabin.position.set(-0.28, 1.12, 0); cabin.castShadow = true; g.add(cabin);
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.07, 1.42), paint);
+        roof.position.set(-0.34, 1.4, 0); g.add(roof);
+        [-0.55, 0.55].forEach(z => {
+            const h = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.13, 0.4), MAT.head);
+            h.position.set(2.76, 0.6, z); g.add(h);
+        });
+        const tl = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.11, 1.62), MAT.tail);
+        tl.position.set(-2.18, 0.68, 0); g.add(tl);
+
+        const wheels = [];
+        const wheelGeo = new THREE.TorusGeometry(0.25, 0.095, 10, 24);
+        const hubGeo = new THREE.CylinderGeometry(0.055, 0.055, 0.3, 10); hubGeo.rotateX(Math.PI / 2);
+        const s1Geo = new THREE.BoxGeometry(0.3, 0.05, 0.17);
+        const s2Geo = new THREE.BoxGeometry(0.05, 0.3, 0.17);
+        [[1.45, 0.82], [1.45, -0.82], [-1.45, 0.82], [-1.45, -0.82]].forEach(([wx, wz]) => {
+            const w = new THREE.Group();
+            w.add(new THREE.Mesh(wheelGeo, MAT.tyre));
+            w.add(new THREE.Mesh(hubGeo, MAT.rim));
+            w.add(new THREE.Mesh(s1Geo, MAT.rim));
+            w.add(new THREE.Mesh(s2Geo, MAT.rim));
+            w.position.set(wx, 0.345, wz);
+            g.add(w); wheels.push(w);
+        });
+        const glow = new THREE.PointLight(0xbfdcff, 26, 16, 2);
+        glow.position.set(3.1, 0.7, 0);
+        g.add(glow);
+        return { g, wheels };
+    }
+    const carA = makeCar(0xd92b2b);   // red — climbing
+    const carB = makeCar(0x2f6df6);   // blue — descending
+    carA.s = 2; carB.s = 14;
+    carsGroup.add(carA.g, carB.g);
+
+    function sampleAt(s) {
+        const arr = path.samples;
+        if (s <= arr[0].s) return arr[0];
+        if (s >= arr[arr.length - 1].s) return arr[arr.length - 1];
+        let lo = 0, hi = arr.length - 1;
+        while (hi - lo > 1) {
+            const mid = (lo + hi) >> 1;
+            if (arr[mid].s <= s) lo = mid; else hi = mid;
+        }
+        const a = arr[lo], b = arr[hi];
+        const t = (s - a.s) / Math.max(1e-6, b.s - a.s);
+        return { s, x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, a: a.a };
+    }
+
+    function updateCars(dt) {
+        if (!path || !driveOn || !carsGroup.visible) return;
+        const v = 4.6, r = 0.345;
+        [[carA, 1, LANE], [carB, -1, -LANE]].forEach(([car, dir, laneZ]) => {
+            car.s += dir * v * dt;
+            if (car.s > path.L - 0.6) car.s = 0.6;
+            if (car.s < 0.6) car.s = path.L - 0.6;
+            const p = sampleAt(car.s);
+            car.g.position.set(p.x, p.y, laneZ);
+            car.g.rotation.y = dir > 0 ? 0 : Math.PI;
+            car.g.rotation.z = dir > 0 ? p.a : -p.a;
+            const k = Math.min(1, (car.s - 0.6) / 3, (path.L - 0.6 - car.s) / 3);
+            car.g.scale.setScalar(Math.max(0.001, k));
+            const spin = -dir * (v * dt / r);
+            car.wheels.forEach(w => { w.rotation.z += spin; });
+        });
+    }
+
+    /* ════════════════════════ GEOMETRY HELPERS ════════════════════════ */
+    function surfaceYAt(segs, x) {
+        for (const s of segs) {
+            if (x <= s.x1) return s.y0 + (x - s.x0) * (s.rise / Math.max(1e-6, s.run));
+        }
+        return segs.length ? segs[segs.length - 1].y1 : 0;
+    }
+
+    function addStalls(G, x0, y) {
+        for (let i = 0; i <= 4; i++) {
+            const l = new THREE.Mesh(track(new THREE.BoxGeometry(0.12, 0.012, 5.2)), MAT.lineWhite);
+            l.position.set(x0 + i * 2.6, y + 0.01, -(RW / 2) - 1.35);
+            l.receiveShadow = true;
+            G.add(l);
+        }
+    }
+
+    /* ════════════════════════ BUILD (parametric rebuild) ════════════════════════ */
+    function buildRamp(data) {
+        try {
+            if (model) scene.remove(model.group);
+            disposables.forEach(d => { try { d.dispose(); } catch (e) {} });
+            disposables = [];
+
+            const G = new THREE.Group();
+
+            // ---- profile segments (metres) ----
+            const segs = [];
+            if (data.bRun > 1) segs.push({ name: 'Bottom Transition', run: data.bRun / 1000, rise: data.bRise / 1000 });
+            const eRun = data.eRun / 1000, eRise = data.eRise / 1000;
+            if (eRun > 0.02) segs.push({ name: 'Main Ramp', run: eRun, rise: Math.max(eRise, 0) });
+            if (data.tRun > 1) segs.push({ name: 'Top Transition', run: data.tRun / 1000, rise: data.tRise / 1000 });
+
+            let cx = 0, cy = 0;
+            segs.forEach(s => {
+                s.x0 = cx; s.y0 = cy;
+                cx += s.run; cy += s.rise;
+                s.x1 = cx; s.y1 = cy;
+                s.len = Math.hypot(s.run, s.rise);
+                s.angle = Math.atan2(s.rise, s.run);
+            });
+            const totalRun = cx, totalRise = cy;
+            const valid = totalRun > 0.2 && totalRise > 0.05;
+
+            msgEl.style.display = valid ? 'none' : 'flex';
+            if (!valid) msgEl.innerHTML = '⚠️<div style="max-width:420px;line-height:1.7;margin-left:12px;">Invalid geometry — set a positive rise and gradient.<br>The 3D model rebuilds live as soon as the profile is valid.</div>';
+
+            model = { group: G, segs, totalRun: valid ? totalRun : 0, totalRise: valid ? totalRise : 0, dimGroup: null };
+            carsGroup.visible = valid && driveOn;
+            path = null;
+            if (!valid) { scene.add(G); updateHUD(data, segs, false); return; }
+
+            // ---- structural deck: extruded engineering profile ----
+            const shape = new THREE.Shape();
+            shape.moveTo(0, -TH);
+            shape.lineTo(totalRun, -TH);
+            shape.lineTo(totalRun, totalRise);
+            for (let i = segs.length - 1; i >= 0; i--) shape.lineTo(segs[i].x0, segs[i].y0);
+            shape.closePath();
+            const deckGeo = track(new THREE.ExtrudeGeometry(shape, { depth: RW, bevelEnabled: false }));
+            deckGeo.translate(0, 0, -RW / 2);
+            const deck = new THREE.Mesh(deckGeo, MAT.deck);
+            deck.castShadow = deck.receiveShadow = true;
+            G.add(deck);
+
+            // ---- per-segment dressing (kerbs, rails, LED, markings, chevrons) ----
+            const chevGeo = track(new THREE.ExtrudeGeometry(chevShape, { depth: 0.016, bevelEnabled: false }));
+            segs.forEach(s => {
+                const sg = new THREE.Group();
+                sg.position.set(s.x0, s.y0, 0);
+                sg.rotation.z = s.angle;
+                G.add(sg);
+
+                [-1, 1].forEach(side => {
+                    const kerb = box(s.len, 0.16, 0.32, MAT.kerb);
+                    kerb.position.set(s.len / 2, 0.08, side * (RW / 2 - 0.18));
+                    sg.add(kerb);
+
+                    const led = new THREE.Mesh(track(new THREE.BoxGeometry(s.len, 0.035, 0.07)), MAT.led);
+                    led.position.set(s.len / 2, 0.178, side * (RW / 2 - 0.42));
+                    sg.add(led);
+
+                    for (let u = 0.6; u < s.len; u += 2.0) {
+                        const p = new THREE.Mesh(track(new THREE.CylinderGeometry(0.045, 0.045, 1.05, 10)), MAT.steel);
+                        p.position.set(u, 0.16 + 0.525, side * (RW / 2 - 0.18));
+                        p.castShadow = true;
+                        sg.add(p);
+                    }
+                    [0.62, 1.02].forEach(hh => {
+                        const rail = box(s.len + 0.02, 0.07, 0.07, MAT.steel);
+                        rail.position.set(s.len / 2, 0.16 + hh, side * (RW / 2 - 0.18));
+                        sg.add(rail);
+                    });
+
+                    const edge = new THREE.Mesh(track(new THREE.BoxGeometry(s.len, 0.012, 0.14)), MAT.lineWhite);
+                    edge.position.set(s.len / 2, 0.009, side * (RW / 2 - 0.78));
+                    edge.receiveShadow = true;
+                    sg.add(edge);
+                });
+
+                for (let u = 0.8; u < s.len - 1.3; u += 3.0) {
+                    const dashLen = Math.min(1.5, s.len - 0.8 - u);
+                    if (dashLen < 0.5) break;
+                    const dash = new THREE.Mesh(track(new THREE.BoxGeometry(dashLen, 0.012, 0.16)), MAT.lineWhite);
+                    dash.position.set(u + dashLen / 2, 0.009, 0);
+                    sg.add(dash);
+                }
+                for (let u = 2.4; u < s.len - 1.4; u += 7) {
+                    const ch = new THREE.Mesh(chevGeo, MAT.lineWhite);
+                    ch.rotation.x = -Math.PI / 2;
+                    ch.position.set(u, 0.02, 0);
+                    sg.add(ch);
+                }
+            });
+
+            // ---- approach slabs, parapets, stalls, arrows ----
+            const slabW = RW + 7;
+            const bSlab = box(SLAB, 0.5, slabW, MAT.asphalt);
+            bSlab.position.set(-SLAB / 2, -0.25, 0); G.add(bSlab);
+            const tSlab = box(SLAB, 0.5, slabW, MAT.asphalt);
+            tSlab.position.set(totalRun + SLAB / 2, totalRise - 0.25, 0); G.add(tSlab);
+
+            [-1, 1].forEach(side => {
+                const wb = box(SLAB, 0.55, 0.3, MAT.concrete);
+                wb.position.set(-SLAB / 2, 0.275, side * (slabW / 2 - 0.15)); G.add(wb);
+                const wt = box(SLAB, 0.55, 0.3, MAT.concrete);
+                wt.position.set(totalRun + SLAB / 2, totalRise + 0.275, side * (slabW / 2 - 0.15)); G.add(wt);
+            });
+            const pb = box(0.3, 0.7, slabW, MAT.concrete);
+            pb.position.set(-SLAB + 0.15, 0.35, 0); G.add(pb);
+            const pt = box(0.3, 0.7, slabW, MAT.concrete);
+            pt.position.set(totalRun + SLAB - 0.15, totalRise + 0.35, 0); G.add(pt);
+
+            addStalls(G, -SLAB + 2.2, 0);
+            addStalls(G, totalRun + 2.2, totalRise);
+
+            const chevGeo2 = chevGeo;
+            const arB = new THREE.Mesh(chevGeo2, MAT.lineWhite);
+            arB.rotation.x = -Math.PI / 2;
+            arB.position.set(-8.5, 0.02, 2.4); G.add(arB);
+            const arT = new THREE.Mesh(chevGeo2, MAT.lineWhite);
+            arT.rotation.x = -Math.PI / 2;
+            arT.scale.x = -1;
+            arT.position.set(totalRun + 8.5, totalRise + 0.02, 2.4); G.add(arT);
+
+            // ---- supporting columns under the deck ----
+            for (let x = 3.5; x < totalRun - 2.6; x += 5.5) {
+                const h = surfaceYAt(segs, x) - TH;
+                if (h < 2.4) continue;
+                [-1, 1].forEach(side => {
+                    const col = new THREE.Mesh(track(new THREE.CylinderGeometry(0.24, 0.24, h, 14)), MAT.concrete);
+                    col.position.set(x, h / 2, side * (RW / 2 - 0.75));
+                    col.castShadow = col.receiveShadow = true;
+                    G.add(col);
+                    const cap = box(0.78, 0.18, 0.78, MAT.concrete);
+                    cap.position.set(x, h + 0.09, side * (RW / 2 - 0.75));
+                    G.add(cap);
+                });
+            }
+
+            // ---- level annotations ----
+            const lb = label([data.fromName || 'From Level', `EL. ${fmtMM(data.fromElev)} mm`]);
+            lb.position.set(-2.4, 3.0, RW / 2 - 0.3); G.add(lb);
+            const lt = label([data.toName || 'To Level', `EL. ${fmtMM(data.toElev)} mm`]);
+            lt.position.set(totalRun + 2.4, totalRise + 3.0, RW / 2 - 0.3); G.add(lt);
+
+            // ---- engineering dimension callouts ----
+            const DG = new THREE.Group();
+            DG.visible = dimsVisible;
+            G.add(DG);
+            model.dimGroup = DG;
+
+            const dline = (pts) => {
+                DG.add(new THREE.Line(track(new THREE.BufferGeometry().setFromPoints(pts)), MAT.dim));
+            };
+            segs.forEach(s => {
+                if (s.len < 0.7) return;
+                const dg = new THREE.Group();
+                dg.position.set(s.x0, s.y0, 0);
+                dg.rotation.z = s.angle;
+                DG.add(dg);
+                dg.add(new THREE.Line(track(new THREE.BufferGeometry().setFromPoints([v3(0, 1.5, 0), v3(s.len, 1.5, 0)])), MAT.dim));
+                dg.add(new THREE.Line(track(new THREE.BufferGeometry().setFromPoints([v3(0, 1.28, 0), v3(0, 1.72, 0)])), MAT.dim));
+                dg.add(new THREE.Line(track(new THREE.BufferGeometry().setFromPoints([v3(s.len, 1.28, 0), v3(s.len, 1.72, 0)])), MAT.dim));
+                const X = s.rise > 0.001 ? s.run / s.rise : Infinity;
+                const gradTxt = isFinite(X) ? `1:${X.toFixed(1)}  ·  ${(100 / X).toFixed(2)}%` : 'FLAT';
+                const sl = label([s.name, gradTxt, `RUN ${fmtMM(s.run * 1000)}  ·  RISE ${fmtMM(s.rise * 1000)}`], { h: 1.12 });
+                sl.position.set(s.len / 2, 2.1, 0);
+                dg.add(sl);
+            });
+            const yD = -1.9;
+            dline([v3(0, yD, 0), v3(totalRun, yD, 0)]);
+            dline([v3(0, yD - 0.22, 0), v3(0, yD + 0.22, 0)]);
+            dline([v3(totalRun, yD - 0.22, 0), v3(totalRun, yD + 0.22, 0)]);
+            const runLbl = label(['TOTAL RUN', `${fmtMM(totalRun * 1000)} mm`], { h: 1.05, sizes: [46, 52], colors: ['#7dd3fc', '#eef4ff'] });
+            runLbl.position.set(totalRun / 2, yD - 1.0, 0); DG.add(runLbl);
+            const xD = totalRun + 2.4;
+            dline([v3(xD, 0, 0), v3(xD, totalRise, 0)]);
+            dline([v3(xD - 0.22, 0, 0), v3(xD + 0.22, 0, 0)]);
+            dline([v3(xD - 0.22, totalRise, 0), v3(xD + 0.22, totalRise, 0)]);
+            const riseLbl = label(['TOTAL RISE', `${fmtMM(totalRise * 1000)} mm`], { h: 1.05, sizes: [46, 52], colors: ['#7dd3fc', '#eef4ff'] });
+            riseLbl.position.set(xD + 1.9, totalRise / 2, 0); DG.add(riseLbl);
+
+            // ---- car path (approach slabs included) ----
+            const pathPts = [{ x: -6.5, y: 0 }];
+            segs.forEach(s => pathPts.push({ x: s.x1, y: s.y1 }));
+            pathPts.push({ x: totalRun + 6.5, y: totalRise });
+            let acc = 0; const samples = [];
+            for (let i = 0; i < pathPts.length - 1; i++) {
+                const a = pathPts[i], b = pathPts[i + 1];
+                const len = Math.hypot(b.x - a.x, b.y - a.y);
+                const n = Math.max(1, Math.ceil(len / 0.5));
+                for (let j = (i === 0 ? 0 : 1); j <= n; j++) {
+                    const t = j / n;
+                    samples.push({
+                        s: acc + len * t,
+                        x: a.x + (b.x - a.x) * t,
+                        y: a.y + (b.y - a.y) * t,
+                        a: Math.atan2(b.y - a.y, b.x - a.x)
+                    });
+                }
+                acc += len;
+            }
+            path = { samples, L: acc };
+
+            // ---- shadow framing ----
+            const midX = totalRun / 2;
+            const ext = Math.max(30, totalRun * 0.72 + 20);
+            sun.position.set(midX + ext * 0.7, Math.max(34, totalRise + 28), ext * 0.6);
+            sun.target.position.set(midX, totalRise / 2, 0);
+            const sc = sun.shadow.camera;
+            sc.left = -ext; sc.right = ext; sc.top = ext; sc.bottom = -ext;
+            sc.near = 1; sc.far = 400;
+            sc.updateProjectionMatrix();
+
+            scene.add(G);
+            rebuildFlash = 1;
+            updateHUD(data, segs, true);
+
+            if (!firstFitDone) {
+                firstFitDone = true;
+                const v = viewTargets('hero');
+                camera.position.copy(v.pos.clone().multiplyScalar(1.75)).add(v.tgt.clone().multiplyScalar(-0.75));
+                controls.target.copy(v.tgt);
+                flyTo(v.pos, v.tgt, 1.8);
+                setTimeout(() => { controls.autoRotate = true; btnOrbit.classList.add('active'); }, 2000);
+            }
+        } catch (err) {
+            console.error('[Ramp3D] build failed:', err);
+        }
+    }
+
+    /* ════════════════════════ HUD ════════════════════════ */
+    function updateHUD(data, segs, valid) {
+        const set = (id, txt) => { const el = $(id); if (el) el.textContent = txt; };
+        set('r3d_hud_run', valid ? fmtMM(model.totalRun * 1000) + ' mm' : '—');
+        set('r3d_hud_rise', valid ? fmtMM(model.totalRise * 1000) + ' mm' : '—');
+        set('r3d_hud_slope', valid ? `1:${(+data.mGrad || 0).toFixed(1)} · ${(+data.mPct || 0).toFixed(2)}%` : '—');
+        const trueLen = segs.reduce((a, s) => a + s.len, 0);
+        set('r3d_hud_len', valid ? trueLen.toFixed(2) + ' m' : '—');
+        const warn = $('r3d_hud_warn');
+        if (warn) warn.style.display = (data.eRun < 0) ? 'flex' : 'none';
+    }
+
+    /* ════════════════════════ CAMERA VIEWS ════════════════════════ */
+    function viewTargets(name) {
+        const R = model ? model.totalRun : 30, H = model ? model.totalRise : 3;
+        const midX = R / 2, midY = H / 2;
+        const spanX = R + SLAB * 1.6;   // full model extent including approach slabs
+        const D = Math.max(28, Math.hypot(R, H) * 0.72);
+        switch (name) {
+            case 'plan':    return { pos: v3(midX, Math.max(spanX * 0.95, 34), 0.001), tgt: v3(midX, 0, 0) };
+            case 'profile': return { pos: v3(midX, midY + D * 0.12, spanX * 0.62), tgt: v3(midX, midY, 0) };
+            case 'end':     return { pos: v3(-D * 0.95, midY + D * 0.3, D * 0.32), tgt: v3(midX * 0.72, midY, 0) };
+            default:        return { pos: v3(midX + D * 0.42, H + D * 0.4, D * 0.95), tgt: v3(midX, Math.max(2, midY * 0.85), 0) };
+        }
+    }
+    function setView(name) {
+        if (!model || !model.totalRun) return;
+        const v = viewTargets(name);
+        flyTo(v.pos, v.tgt, 1.1);
+    }
+    const easeIO = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    function flyTo(pos, tgt, dur) {
+        camTween = { t: 0, dur: dur || 1.1, fp: camera.position.clone(), tp: pos.clone(), ft: controls.target.clone(), tt: tgt.clone() };
+    }
+
+    /* ════════════════════════ RENDER LOOP ════════════════════════ */
+    const clock = new THREE.Clock();
+    function animate() {
+        requestAnimationFrame(animate);
+        const dt = Math.min(clock.getDelta(), 0.05);
+        const t = clock.elapsedTime;
+        if (camTween) {
+            camTween.t += dt / camTween.dur;
+            const e = easeIO(Math.min(camTween.t, 1));
+            camera.position.lerpVectors(camTween.fp, camTween.tp, e);
+            controls.target.lerpVectors(camTween.ft, camTween.tt, e);
+            camera.lookAt(controls.target);
+            if (camTween.t >= 1) camTween = null;
+        } else {
+            controls.update();
+        }
+        updateCars(dt);
+        rebuildFlash *= Math.pow(0.14, dt);
+        MAT.led.emissiveIntensity = 2.4 + Math.sin(t * 2.1) * 0.45 + rebuildFlash * 5;
+        composer.render();
+        if (pendingCapture) { pendingCapture = false; doCapture(); }
+    }
+
+    function doCapture() {
+        try {
+            const a = document.createElement('a');
+            a.href = renderer.domElement.toDataURL('image/png');
+            a.download = `ramp-3d-${Date.now()}.png`;
+            a.click();
+        } catch (e) { console.warn('[Ramp3D] capture failed', e); }
+    }
+
+    /* ════════════════════════ RESIZE ════════════════════════ */
+    function resize() {
+        const w = wrap.clientWidth || 960, h = wrap.clientHeight || 620;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        composer.setSize(w, h);
+        bloom.setSize(w, h);
+    }
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ════════════════════════ UI BINDINGS ════════════════════════ */
+    const btnOrbit = $('r3d_btn_orbit');
+    const btnDrive = $('r3d_btn_drive');
+    const btnDims = $('r3d_btn_dims');
+    [btnDrive, btnDims].forEach(b => b && b.classList.add('active'));
+
+    if (btnOrbit) btnOrbit.onclick = () => {
+        controls.autoRotate = !controls.autoRotate;
+        btnOrbit.classList.toggle('active', controls.autoRotate);
+    };
+    if (btnDrive) btnDrive.onclick = () => {
+        driveOn = !driveOn;
+        carsGroup.visible = driveOn && !!(model && model.totalRun > 0);
+        btnDrive.classList.toggle('active', driveOn);
+    };
+    if (btnDims) btnDims.onclick = () => {
+        dimsVisible = !dimsVisible;
+        if (model && model.dimGroup) model.dimGroup.visible = dimsVisible;
+        btnDims.classList.toggle('active', dimsVisible);
+    };
+    document.querySelectorAll('#card_3d [data-view]').forEach(b => {
+        b.addEventListener('click', () => setView(b.dataset.view));
+    });
+    const btnShot = $('r3d_btn_shot');
+    if (btnShot) btnShot.onclick = () => { pendingCapture = true; };
+
+    // stop auto-orbit / camera tween as soon as the user takes control
+    renderer.domElement.addEventListener('pointerdown', () => {
+        camTween = null;
+        if (controls.autoRotate) {
+            controls.autoRotate = false;
+            btnOrbit.classList.remove('active');
+        }
+    });
+
+    // fullscreen
+    function fullscreen() {
+        const on = card3d.classList.toggle('r3d-fs');
+        document.body.style.overflow = on ? 'hidden' : '';
+    }
+    const btnFs = $('r3d_btn_fs');
+    if (btnFs) btnFs.onclick = fullscreen;
+    const btnClose = $('r3d_close');
+    if (btnClose) btnClose.onclick = () => { if (card3d.classList.contains('r3d-fs')) fullscreen(); };
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && card3d.classList.contains('r3d-fs')) fullscreen();
+    });
+
+    /* ════════════════════════ PUBLIC API + INIT ════════════════════════ */
+    let rebuildTimer = null;
+    function setData(d) {
+        window.__lastRamp3DData = d;
+        clearTimeout(rebuildTimer);
+        rebuildTimer = setTimeout(() => buildRamp(d), 120);
+    }
+    window.Ramp3D = { ready: true, setData, fullscreen, resize, setView };
+
+    const initial = window.__lastRamp3DData || {
+        bRun: 3000, bRise: 150, eRun: 24000, eRise: 2700, tRun: 3000, tRise: 150,
+        mRun: 30000, mRise: 3000, mGrad: 10, mPct: 10, bGrade: 5, tGrade: 5,
+        fromName: 'Basement', fromElev: -3000, toName: 'Ground Floor', toElev: 0
+    };
+    buildRamp(initial);
+    animate();
+    setTimeout(() => {
+        loadingEl.style.opacity = '0';
+        setTimeout(() => { loadingEl.style.display = 'none'; }, 600);
+    }, 400);
+})();
+    </script>
+</body>
+</html>
